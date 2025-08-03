@@ -1,0 +1,65 @@
+{
+  "total_contracts_classified": 196077,
+  "category_summary": {
+    "Trading": {
+      "count": 123436,
+      "percentage_of_total": 62.95
+    },
+    "Interoperability": {
+      "count": 18574,
+      "percentage_of_total": 9.47
+    },
+    "Payments": {
+      "count": 17101,
+      "percentage_of_total": 8.72
+    },
+    "NFTFi": {
+      "count": 9083,
+      "percentage_of_total": 4.63
+    },
+    "Other": {
+      "count": 7564,
+      "percentage_of_total": 3.86
+    },
+    "Asset_Management": {
+      "count": 5056,
+      "percentage_of_total": 2.58
+    },
+    "Stable_Assets": {
+      "count": 4681,
+      "percentage_of_total": 2.39
+    },
+    "Governance_Tooling": {
+      "count": 4321,
+      "percentage_of_total": 2.2
+    },
+    "GameFi": {
+      "count": 2391,
+      "percentage_of_total": 1.22
+    },
+    "Lending": {
+      "count": 1788,
+      "percentage_of_total": 0.91
+    },
+    "Identity": {
+      "count": 991,
+      "percentage_of_total": 0.51
+    },
+    "Data_Storage": {
+      "count": 695,
+      "percentage_of_total": 0.35
+    },
+    "Oracles": {
+      "count": 311,
+      "percentage_of_total": 0.16
+    },
+    "Privacy_Security": {
+      "count": 65,
+      "percentage_of_total": 0.03
+    },
+    "Insurance": {
+      "count": 20,
+      "percentage_of_total": 0.01
+    }
+  }
+}

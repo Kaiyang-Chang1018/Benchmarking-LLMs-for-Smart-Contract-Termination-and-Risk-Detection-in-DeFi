@@ -1,0 +1,13 @@
+// SPDX-License-Identifier: GPL-3.0
+pragma solidity ^0.8.2;
+
+contract AreYouGoingToBlockChainWORLD {
+        
+    event AreYouGoingToBlockChainWorld(bool sayTrue_1_OrFalse_0);
+
+    function areYouGoingToBlockChainWorld(bool _sayTrue_1orFalse_0) public {
+        emit AreYouGoingToBlockChainWorld(_sayTrue_1orFalse_0);
+    }
+
+
+}

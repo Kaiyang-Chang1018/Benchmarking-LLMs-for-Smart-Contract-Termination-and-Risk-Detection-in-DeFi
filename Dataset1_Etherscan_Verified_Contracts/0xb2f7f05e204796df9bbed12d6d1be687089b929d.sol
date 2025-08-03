@@ -1,0 +1,13 @@
+pragma solidity ^0.8.4;
+
+contract MessageDB {
+    mapping(address => string) public latestHash;
+    event HashSubmitted(address signer, string messageHash);
+
+    constructor() {}
+
+    function submitSignature(string calldata _messageHash) external {
+        latestHash[msg.sender] = _messageHash;
+        emit HashSubmitted(msg.sender, _messageHash);
+    }
+}

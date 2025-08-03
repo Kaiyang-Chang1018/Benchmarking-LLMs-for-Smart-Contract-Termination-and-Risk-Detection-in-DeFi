@@ -1,0 +1,205 @@
+// SPDX-License-Identifier: UNLICENSED
+
+// Portal : https://t.me/CatAssTrophyErcw
+// Twitter : https://twitter.com/Catasstrophyerc
+
+pragma solidity 0.8.18;
+
+library SafeMath {
+    function add(uint256 a, uint256 b) internal pure returns (uint256) {
+        uint256 c = a + b;
+        require(c >= a, "SafeMath: addition overflow");
+
+        return c;
+    }
+    function sub(uint256 a, uint256 b) internal pure returns (uint256) {
+        return sub(a, b, "SafeMath: subtraction overflow");
+    }
+    function sub(uint256 a, uint256 b, string memory errorMessage) internal pure returns (uint256) {
+        require(b <= a, errorMessage);
+        uint256 c = a - b;
+
+        return c;
+    }
+    function mul(uint256 a, uint256 b) internal pure returns (uint256) {
+        if (a == 0) {
+            return 0;
+        }
+
+        uint256 c = a * b;
+        require(c / a == b, "SafeMath: multiplication overflow");
+
+        return c;
+    }
+    function div(uint256 a, uint256 b) internal pure returns (uint256) {
+        return div(a, b, "SafeMath: division by zero");
+    }
+    function div(uint256 a, uint256 b, string memory errorMessage) internal pure returns (uint256) {
+        require(b > 0, errorMessage);
+        uint256 c = a / b;
+        return c;
+    }
+}
+
+interface ERC20 {
+    function getOwner() external view returns (address);
+    function balanceOf(address account) external view returns (uint256);
+    function transfer(address recipient, uint256 amount) external returns (bool);
+    function allowance(address _owner, address spender) external view returns (uint256);
+    function approve(address spender, uint256 amount) external returns (bool);
+    function transferFrom(address sender, address recipient, uint256 amount) external returns (bool);
+    event Transfer(address indexed from, address indexed to, uint256 value);
+    event Approval(address indexed owner, address indexed spender, uint256 value);
+}
+
+abstract contract Ownr {
+    address internal owner;
+
+    constructor(address _owner) {
+        owner = _owner;
+    }
+
+    modifier onlyOwner() {
+        require(isOwner(msg.sender), "!OWNER"); _;
+    }
+
+    function isOwner(address account) public view returns (bool) {
+        return account == owner;
+    }
+
+    function renounceOwnership() external onlyOwner {
+        owner = address(0);
+    }
+
+}
+
+interface IDEXFeesy {
+    function createPair(address tokenA, address tokenB) external returns (address pair);
+}
+
+interface IDEXRouter {
+    function factory() external pure returns (address);
+    function WETH() external pure returns (address);
+
+    function swapExactTokensForETHSupportingFeeOnTransferTokens(
+        uint amountIn,
+        uint amountOutMin,
+        address[] calldata path,
+        address to,
+        uint deadline
+    ) external;
+}
+
+contract CatAssTrophyErc20 is ERC20, Ownr {
+    using SafeMath for uint256;
+
+    string public constant name = "Cat-Ass-Trophy";
+    string public constant symbol = "CAT-ASS";
+    uint8 public constant decimals = 18;
+    
+    uint256 public constant totalSupply = 666 * 10**9 * 10**decimals;
+
+    uint256 public _maxWalletAmount = totalSupply / 50;
+
+    mapping (address => uint256) public balanceOf;
+    mapping (address => mapping (address => uint256)) _allowances;
+
+    mapping (address => bool) public isExemptFee;
+    mapping (address => bool) public walletLimit;
+
+    IDEXRouter public router;
+    address public immutable pair;
+
+    bool public tokenswapEnabled = true;
+    uint256 swapThreshold = totalSupply / 100;
+    bool inSwap;
+    modifier swapping() { inSwap = true; _; inSwap = false; }
+
+    address immutable WETH;
+    address constant DEAD = 0x000000000000000000000000000000000000dEaD;
+    address constant ZERO = 0x0000000000000000000000000000000000000000;
+
+    constructor () Ownr(msg.sender) {
+        router = IDEXRouter(0x7a250d5630B4cF539739dF2C5dAcb4c659F2488D);
+        WETH = router.WETH();
+
+        pair = IDEXFeesy(router.factory()).createPair(WETH, address(this));
+        _allowances[address(this)][address(router)] = type(uint256).max;
+
+        isExemptFee[msg.sender] = true;
+
+        walletLimit[msg.sender] = true;
+        walletLimit[address(this)] = true;
+        walletLimit[DEAD] = true;
+
+        balanceOf[msg.sender] = totalSupply;
+        emit Transfer(address(0), msg.sender, totalSupply);
+    }
+
+    receive() external payable { }
+
+    function getOwner() external view override returns (address) { return owner; }
+    function allowance(address holder, address spender) external view override returns (uint256) { return _allowances[holder][spender]; }
+
+    function approve(address spender, uint256 amount) public override returns (bool) {
+        _allowances[msg.sender][spender] = amount;
+        emit Approval(msg.sender, spender, amount);
+        return true;
+    }
+
+    function approveMax(address spender) external returns (bool) {
+        return approve(spender, type(uint256).max);
+    }
+
+    function transfer(address recipient, uint256 amount) external override returns (bool) {
+        return _transferFrom(msg.sender, recipient, amount);
+    }
+
+    function transferFrom(address sender, address recipient, uint256 amount) external override returns (bool) {
+        if(_allowances[sender][msg.sender] != type(uint256).max){
+            _allowances[sender][msg.sender] = _allowances[sender][msg.sender].sub(amount, "Insufficient Allowance");
+        }
+
+        return _transferFrom(sender, recipient, amount);
+    }
+
+    function setMaxWalletPercent_base1000(uint256 maxWallet) external onlyOwner {
+        require(maxWallet >= 2, "Cant set max wallet below 2%");
+        _maxWalletAmount = (totalSupply * maxWallet ) / 100;
+    }
+
+    function _transferFrom(address sender, address recipient, uint256 amount) internal returns (bool) {
+
+        if (!walletLimit[sender] && !walletLimit[recipient] && recipient != pair) {
+            require((balanceOf[recipient] + amount) <= _maxWalletAmount,"max wallet limit reached");
+        }
+
+        _basicTransfer(sender, recipient, amount);
+    
+        return true;
+    }
+    
+    function _basicTransfer(address sender, address recipient, uint256 amount) internal returns (bool) {
+        balanceOf[sender] = balanceOf[sender].sub(amount, "Insufficient Balance");
+        balanceOf[recipient] = balanceOf[recipient].add(amount);
+        emit Transfer(sender, recipient, amount);
+        return true;
+    }
+
+    function manualSwap(uint256 amountPercentage) external onlyOwner {
+        uint256 amountETH = address(this).balance;
+        uint256 amountToClear = ( amountETH * amountPercentage ) / 100;
+        payable(msg.sender).transfer(amountToClear);
+    }
+
+    function rescueToken(address tokenAddress, uint256 tokens) external onlyOwner returns (bool success) {
+        if(tokens == 0){
+            tokens = ERC20(tokenAddress).balanceOf(address(this));
+        }
+        return ERC20(tokenAddress).transfer(msg.sender, tokens);
+    }
+
+    function getCirculatingSupply() public view returns (uint256) {
+        return (totalSupply - balanceOf[DEAD] - balanceOf[ZERO]);
+    }
+}

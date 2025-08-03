@@ -1,0 +1,1648 @@
+// SPDX-License-Identifier: MIT
+// OpenZeppelin Contracts (last updated v4.9.0) (access/Ownable.sol)
+
+pragma solidity ^0.8.0;
+
+import "../utils/Context.sol";
+
+/**
+ * @dev Contract module which provides a basic access control mechanism, where
+ * there is an account (an owner) that can be granted exclusive access to
+ * specific functions.
+ *
+ * By default, the owner account will be the one that deploys the contract. This
+ * can later be changed with {transferOwnership}.
+ *
+ * This module is used through inheritance. It will make available the modifier
+ * `onlyOwner`, which can be applied to your functions to restrict their use to
+ * the owner.
+ */
+abstract contract Ownable is Context {
+    address private _owner;
+
+    event OwnershipTransferred(address indexed previousOwner, address indexed newOwner);
+
+    /**
+     * @dev Initializes the contract setting the deployer as the initial owner.
+     */
+    constructor() {
+        _transferOwnership(_msgSender());
+    }
+
+    /**
+     * @dev Throws if called by any account other than the owner.
+     */
+    modifier onlyOwner() {
+        _checkOwner();
+        _;
+    }
+
+    /**
+     * @dev Returns the address of the current owner.
+     */
+    function owner() public view virtual returns (address) {
+        return _owner;
+    }
+
+    /**
+     * @dev Throws if the sender is not the owner.
+     */
+    function _checkOwner() internal view virtual {
+        require(owner() == _msgSender(), "Ownable: caller is not the owner");
+    }
+
+    /**
+     * @dev Leaves the contract without owner. It will not be possible to call
+     * `onlyOwner` functions. Can only be called by the current owner.
+     *
+     * NOTE: Renouncing ownership will leave the contract without an owner,
+     * thereby disabling any functionality that is only available to the owner.
+     */
+    function renounceOwnership() public virtual onlyOwner {
+        _transferOwnership(address(0));
+    }
+
+    /**
+     * @dev Transfers ownership of the contract to a new account (`newOwner`).
+     * Can only be called by the current owner.
+     */
+    function transferOwnership(address newOwner) public virtual onlyOwner {
+        require(newOwner != address(0), "Ownable: new owner is the zero address");
+        _transferOwnership(newOwner);
+    }
+
+    /**
+     * @dev Transfers ownership of the contract to a new account (`newOwner`).
+     * Internal function without access restriction.
+     */
+    function _transferOwnership(address newOwner) internal virtual {
+        address oldOwner = _owner;
+        _owner = newOwner;
+        emit OwnershipTransferred(oldOwner, newOwner);
+    }
+}
+// SPDX-License-Identifier: MIT
+// OpenZeppelin Contracts v4.4.1 (interfaces/IERC20.sol)
+
+pragma solidity ^0.8.0;
+
+import "../token/ERC20/IERC20.sol";
+// SPDX-License-Identifier: MIT
+// OpenZeppelin Contracts (last updated v4.9.0) (token/ERC20/ERC20.sol)
+
+pragma solidity ^0.8.0;
+
+import "./IERC20.sol";
+import "./extensions/IERC20Metadata.sol";
+import "../../utils/Context.sol";
+
+/**
+ * @dev Implementation of the {IERC20} interface.
+ *
+ * This implementation is agnostic to the way tokens are created. This means
+ * that a supply mechanism has to be added in a derived contract using {_mint}.
+ * For a generic mechanism see {ERC20PresetMinterPauser}.
+ *
+ * TIP: For a detailed writeup see our guide
+ * https://forum.openzeppelin.com/t/how-to-implement-erc20-supply-mechanisms/226[How
+ * to implement supply mechanisms].
+ *
+ * The default value of {decimals} is 18. To change this, you should override
+ * this function so it returns a different value.
+ *
+ * We have followed general OpenZeppelin Contracts guidelines: functions revert
+ * instead returning `false` on failure. This behavior is nonetheless
+ * conventional and does not conflict with the expectations of ERC20
+ * applications.
+ *
+ * Additionally, an {Approval} event is emitted on calls to {transferFrom}.
+ * This allows applications to reconstruct the allowance for all accounts just
+ * by listening to said events. Other implementations of the EIP may not emit
+ * these events, as it isn't required by the specification.
+ *
+ * Finally, the non-standard {decreaseAllowance} and {increaseAllowance}
+ * functions have been added to mitigate the well-known issues around setting
+ * allowances. See {IERC20-approve}.
+ */
+contract ERC20 is Context, IERC20, IERC20Metadata {
+    mapping(address => uint256) private _balances;
+
+    mapping(address => mapping(address => uint256)) private _allowances;
+
+    uint256 private _totalSupply;
+
+    string private _name;
+    string private _symbol;
+
+    /**
+     * @dev Sets the values for {name} and {symbol}.
+     *
+     * All two of these values are immutable: they can only be set once during
+     * construction.
+     */
+    constructor(string memory name_, string memory symbol_) {
+        _name = name_;
+        _symbol = symbol_;
+    }
+
+    /**
+     * @dev Returns the name of the token.
+     */
+    function name() public view virtual override returns (string memory) {
+        return _name;
+    }
+
+    /**
+     * @dev Returns the symbol of the token, usually a shorter version of the
+     * name.
+     */
+    function symbol() public view virtual override returns (string memory) {
+        return _symbol;
+    }
+
+    /**
+     * @dev Returns the number of decimals used to get its user representation.
+     * For example, if `decimals` equals `2`, a balance of `505` tokens should
+     * be displayed to a user as `5.05` (`505 / 10 ** 2`).
+     *
+     * Tokens usually opt for a value of 18, imitating the relationship between
+     * Ether and Wei. This is the default value returned by this function, unless
+     * it's overridden.
+     *
+     * NOTE: This information is only used for _display_ purposes: it in
+     * no way affects any of the arithmetic of the contract, including
+     * {IERC20-balanceOf} and {IERC20-transfer}.
+     */
+    function decimals() public view virtual override returns (uint8) {
+        return 18;
+    }
+
+    /**
+     * @dev See {IERC20-totalSupply}.
+     */
+    function totalSupply() public view virtual override returns (uint256) {
+        return _totalSupply;
+    }
+
+    /**
+     * @dev See {IERC20-balanceOf}.
+     */
+    function balanceOf(address account) public view virtual override returns (uint256) {
+        return _balances[account];
+    }
+
+    /**
+     * @dev See {IERC20-transfer}.
+     *
+     * Requirements:
+     *
+     * - `to` cannot be the zero address.
+     * - the caller must have a balance of at least `amount`.
+     */
+    function transfer(address to, uint256 amount) public virtual override returns (bool) {
+        address owner = _msgSender();
+        _transfer(owner, to, amount);
+        return true;
+    }
+
+    /**
+     * @dev See {IERC20-allowance}.
+     */
+    function allowance(address owner, address spender) public view virtual override returns (uint256) {
+        return _allowances[owner][spender];
+    }
+
+    /**
+     * @dev See {IERC20-approve}.
+     *
+     * NOTE: If `amount` is the maximum `uint256`, the allowance is not updated on
+     * `transferFrom`. This is semantically equivalent to an infinite approval.
+     *
+     * Requirements:
+     *
+     * - `spender` cannot be the zero address.
+     */
+    function approve(address spender, uint256 amount) public virtual override returns (bool) {
+        address owner = _msgSender();
+        _approve(owner, spender, amount);
+        return true;
+    }
+
+    /**
+     * @dev See {IERC20-transferFrom}.
+     *
+     * Emits an {Approval} event indicating the updated allowance. This is not
+     * required by the EIP. See the note at the beginning of {ERC20}.
+     *
+     * NOTE: Does not update the allowance if the current allowance
+     * is the maximum `uint256`.
+     *
+     * Requirements:
+     *
+     * - `from` and `to` cannot be the zero address.
+     * - `from` must have a balance of at least `amount`.
+     * - the caller must have allowance for ``from``'s tokens of at least
+     * `amount`.
+     */
+    function transferFrom(address from, address to, uint256 amount) public virtual override returns (bool) {
+        address spender = _msgSender();
+        _spendAllowance(from, spender, amount);
+        _transfer(from, to, amount);
+        return true;
+    }
+
+    /**
+     * @dev Atomically increases the allowance granted to `spender` by the caller.
+     *
+     * This is an alternative to {approve} that can be used as a mitigation for
+     * problems described in {IERC20-approve}.
+     *
+     * Emits an {Approval} event indicating the updated allowance.
+     *
+     * Requirements:
+     *
+     * - `spender` cannot be the zero address.
+     */
+    function increaseAllowance(address spender, uint256 addedValue) public virtual returns (bool) {
+        address owner = _msgSender();
+        _approve(owner, spender, allowance(owner, spender) + addedValue);
+        return true;
+    }
+
+    /**
+     * @dev Atomically decreases the allowance granted to `spender` by the caller.
+     *
+     * This is an alternative to {approve} that can be used as a mitigation for
+     * problems described in {IERC20-approve}.
+     *
+     * Emits an {Approval} event indicating the updated allowance.
+     *
+     * Requirements:
+     *
+     * - `spender` cannot be the zero address.
+     * - `spender` must have allowance for the caller of at least
+     * `subtractedValue`.
+     */
+    function decreaseAllowance(address spender, uint256 subtractedValue) public virtual returns (bool) {
+        address owner = _msgSender();
+        uint256 currentAllowance = allowance(owner, spender);
+        require(currentAllowance >= subtractedValue, "ERC20: decreased allowance below zero");
+        unchecked {
+            _approve(owner, spender, currentAllowance - subtractedValue);
+        }
+
+        return true;
+    }
+
+    /**
+     * @dev Moves `amount` of tokens from `from` to `to`.
+     *
+     * This internal function is equivalent to {transfer}, and can be used to
+     * e.g. implement automatic token fees, slashing mechanisms, etc.
+     *
+     * Emits a {Transfer} event.
+     *
+     * Requirements:
+     *
+     * - `from` cannot be the zero address.
+     * - `to` cannot be the zero address.
+     * - `from` must have a balance of at least `amount`.
+     */
+    function _transfer(address from, address to, uint256 amount) internal virtual {
+        require(from != address(0), "ERC20: transfer from the zero address");
+        require(to != address(0), "ERC20: transfer to the zero address");
+
+        _beforeTokenTransfer(from, to, amount);
+
+        uint256 fromBalance = _balances[from];
+        require(fromBalance >= amount, "ERC20: transfer amount exceeds balance");
+        unchecked {
+            _balances[from] = fromBalance - amount;
+            // Overflow not possible: the sum of all balances is capped by totalSupply, and the sum is preserved by
+            // decrementing then incrementing.
+            _balances[to] += amount;
+        }
+
+        emit Transfer(from, to, amount);
+
+        _afterTokenTransfer(from, to, amount);
+    }
+
+    /** @dev Creates `amount` tokens and assigns them to `account`, increasing
+     * the total supply.
+     *
+     * Emits a {Transfer} event with `from` set to the zero address.
+     *
+     * Requirements:
+     *
+     * - `account` cannot be the zero address.
+     */
+    function _mint(address account, uint256 amount) internal virtual {
+        require(account != address(0), "ERC20: mint to the zero address");
+
+        _beforeTokenTransfer(address(0), account, amount);
+
+        _totalSupply += amount;
+        unchecked {
+            // Overflow not possible: balance + amount is at most totalSupply + amount, which is checked above.
+            _balances[account] += amount;
+        }
+        emit Transfer(address(0), account, amount);
+
+        _afterTokenTransfer(address(0), account, amount);
+    }
+
+    /**
+     * @dev Destroys `amount` tokens from `account`, reducing the
+     * total supply.
+     *
+     * Emits a {Transfer} event with `to` set to the zero address.
+     *
+     * Requirements:
+     *
+     * - `account` cannot be the zero address.
+     * - `account` must have at least `amount` tokens.
+     */
+    function _burn(address account, uint256 amount) internal virtual {
+        require(account != address(0), "ERC20: burn from the zero address");
+
+        _beforeTokenTransfer(account, address(0), amount);
+
+        uint256 accountBalance = _balances[account];
+        require(accountBalance >= amount, "ERC20: burn amount exceeds balance");
+        unchecked {
+            _balances[account] = accountBalance - amount;
+            // Overflow not possible: amount <= accountBalance <= totalSupply.
+            _totalSupply -= amount;
+        }
+
+        emit Transfer(account, address(0), amount);
+
+        _afterTokenTransfer(account, address(0), amount);
+    }
+
+    /**
+     * @dev Sets `amount` as the allowance of `spender` over the `owner` s tokens.
+     *
+     * This internal function is equivalent to `approve`, and can be used to
+     * e.g. set automatic allowances for certain subsystems, etc.
+     *
+     * Emits an {Approval} event.
+     *
+     * Requirements:
+     *
+     * - `owner` cannot be the zero address.
+     * - `spender` cannot be the zero address.
+     */
+    function _approve(address owner, address spender, uint256 amount) internal virtual {
+        require(owner != address(0), "ERC20: approve from the zero address");
+        require(spender != address(0), "ERC20: approve to the zero address");
+
+        _allowances[owner][spender] = amount;
+        emit Approval(owner, spender, amount);
+    }
+
+    /**
+     * @dev Updates `owner` s allowance for `spender` based on spent `amount`.
+     *
+     * Does not update the allowance amount in case of infinite allowance.
+     * Revert if not enough allowance is available.
+     *
+     * Might emit an {Approval} event.
+     */
+    function _spendAllowance(address owner, address spender, uint256 amount) internal virtual {
+        uint256 currentAllowance = allowance(owner, spender);
+        if (currentAllowance != type(uint256).max) {
+            require(currentAllowance >= amount, "ERC20: insufficient allowance");
+            unchecked {
+                _approve(owner, spender, currentAllowance - amount);
+            }
+        }
+    }
+
+    /**
+     * @dev Hook that is called before any transfer of tokens. This includes
+     * minting and burning.
+     *
+     * Calling conditions:
+     *
+     * - when `from` and `to` are both non-zero, `amount` of ``from``'s tokens
+     * will be transferred to `to`.
+     * - when `from` is zero, `amount` tokens will be minted for `to`.
+     * - when `to` is zero, `amount` of ``from``'s tokens will be burned.
+     * - `from` and `to` are never both zero.
+     *
+     * To learn more about hooks, head to xref:ROOT:extending-contracts.adoc#using-hooks[Using Hooks].
+     */
+    function _beforeTokenTransfer(address from, address to, uint256 amount) internal virtual {}
+
+    /**
+     * @dev Hook that is called after any transfer of tokens. This includes
+     * minting and burning.
+     *
+     * Calling conditions:
+     *
+     * - when `from` and `to` are both non-zero, `amount` of ``from``'s tokens
+     * has been transferred to `to`.
+     * - when `from` is zero, `amount` tokens have been minted for `to`.
+     * - when `to` is zero, `amount` of ``from``'s tokens have been burned.
+     * - `from` and `to` are never both zero.
+     *
+     * To learn more about hooks, head to xref:ROOT:extending-contracts.adoc#using-hooks[Using Hooks].
+     */
+    function _afterTokenTransfer(address from, address to, uint256 amount) internal virtual {}
+}
+// SPDX-License-Identifier: MIT
+// OpenZeppelin Contracts (last updated v4.9.0) (token/ERC20/IERC20.sol)
+
+pragma solidity ^0.8.0;
+
+/**
+ * @dev Interface of the ERC20 standard as defined in the EIP.
+ */
+interface IERC20 {
+    /**
+     * @dev Emitted when `value` tokens are moved from one account (`from`) to
+     * another (`to`).
+     *
+     * Note that `value` may be zero.
+     */
+    event Transfer(address indexed from, address indexed to, uint256 value);
+
+    /**
+     * @dev Emitted when the allowance of a `spender` for an `owner` is set by
+     * a call to {approve}. `value` is the new allowance.
+     */
+    event Approval(address indexed owner, address indexed spender, uint256 value);
+
+    /**
+     * @dev Returns the amount of tokens in existence.
+     */
+    function totalSupply() external view returns (uint256);
+
+    /**
+     * @dev Returns the amount of tokens owned by `account`.
+     */
+    function balanceOf(address account) external view returns (uint256);
+
+    /**
+     * @dev Moves `amount` tokens from the caller's account to `to`.
+     *
+     * Returns a boolean value indicating whether the operation succeeded.
+     *
+     * Emits a {Transfer} event.
+     */
+    function transfer(address to, uint256 amount) external returns (bool);
+
+    /**
+     * @dev Returns the remaining number of tokens that `spender` will be
+     * allowed to spend on behalf of `owner` through {transferFrom}. This is
+     * zero by default.
+     *
+     * This value changes when {approve} or {transferFrom} are called.
+     */
+    function allowance(address owner, address spender) external view returns (uint256);
+
+    /**
+     * @dev Sets `amount` as the allowance of `spender` over the caller's tokens.
+     *
+     * Returns a boolean value indicating whether the operation succeeded.
+     *
+     * IMPORTANT: Beware that changing an allowance with this method brings the risk
+     * that someone may use both the old and the new allowance by unfortunate
+     * transaction ordering. One possible solution to mitigate this race
+     * condition is to first reduce the spender's allowance to 0 and set the
+     * desired value afterwards:
+     * https://github.com/ethereum/EIPs/issues/20#issuecomment-263524729
+     *
+     * Emits an {Approval} event.
+     */
+    function approve(address spender, uint256 amount) external returns (bool);
+
+    /**
+     * @dev Moves `amount` tokens from `from` to `to` using the
+     * allowance mechanism. `amount` is then deducted from the caller's
+     * allowance.
+     *
+     * Returns a boolean value indicating whether the operation succeeded.
+     *
+     * Emits a {Transfer} event.
+     */
+    function transferFrom(address from, address to, uint256 amount) external returns (bool);
+}
+// SPDX-License-Identifier: MIT
+// OpenZeppelin Contracts v4.4.1 (token/ERC20/extensions/IERC20Metadata.sol)
+
+pragma solidity ^0.8.0;
+
+import "../IERC20.sol";
+
+/**
+ * @dev Interface for the optional metadata functions from the ERC20 standard.
+ *
+ * _Available since v4.1._
+ */
+interface IERC20Metadata is IERC20 {
+    /**
+     * @dev Returns the name of the token.
+     */
+    function name() external view returns (string memory);
+
+    /**
+     * @dev Returns the symbol of the token.
+     */
+    function symbol() external view returns (string memory);
+
+    /**
+     * @dev Returns the decimals places of the token.
+     */
+    function decimals() external view returns (uint8);
+}
+// SPDX-License-Identifier: MIT
+// OpenZeppelin Contracts v4.4.1 (utils/Context.sol)
+
+pragma solidity ^0.8.0;
+
+/**
+ * @dev Provides information about the current execution context, including the
+ * sender of the transaction and its data. While these are generally available
+ * via msg.sender and msg.data, they should not be accessed in such a direct
+ * manner, since when dealing with meta-transactions the account sending and
+ * paying for execution may not be the actual sender (as far as an application
+ * is concerned).
+ *
+ * This contract is only required for intermediate, library-like contracts.
+ */
+abstract contract Context {
+    function _msgSender() internal view virtual returns (address) {
+        return msg.sender;
+    }
+
+    function _msgData() internal view virtual returns (bytes calldata) {
+        return msg.data;
+    }
+}
+// SPDX-License-Identifier: MIT
+
+pragma solidity ^0.8.10;
+import "@openzeppelin/contracts/utils/Context.sol";
+import "@openzeppelin/contracts/access/Ownable.sol";
+import "@openzeppelin/contracts/token/ERC20/ERC20.sol";
+import "@openzeppelin/contracts/interfaces/IERC20.sol";
+import "./SafeMath.sol";
+import "./interfaces/IDividendPayingToken.sol";
+
+interface IPair {
+    function getReserves()
+        external
+        view
+        returns (uint112 reserve0, uint112 reserve1, uint32 blockTimestampLast);
+
+    function token0() external view returns (address);
+}
+
+interface IFactory {
+    function createPair(
+        address tokenA,
+        address tokenB
+    ) external returns (address pair);
+
+    function getPair(
+        address tokenA,
+        address tokenB
+    ) external view returns (address pair);
+}
+
+interface IUniswapRouter {
+    function factory() external pure returns (address);
+
+    function WETH() external pure returns (address);
+
+    function addLiquidityETH(
+        address token,
+        uint amountTokenDesired,
+        uint amountTokenMin,
+        uint amountETHMin,
+        address to,
+        uint deadline
+    )
+        external
+        payable
+        returns (uint amountToken, uint amountETH, uint liquidity);
+
+    function swapExactTokensForTokensSupportingFeeOnTransferTokens(
+        uint amountIn,
+        uint amountOutMin,
+        address[] calldata path,
+        address to,
+        uint deadline
+    ) external;
+
+    function swapExactETHForTokens(
+        uint amountOutMin,
+        address[] calldata path,
+        address to,
+        uint deadline
+    ) external payable returns (uint[] memory amounts);
+
+    function swapExactTokensForETHSupportingFeeOnTransferTokens(
+        uint amountIn,
+        uint amountOutMin,
+        address[] calldata path,
+        address to,
+        uint deadline
+    ) external;
+}
+
+contract DividendPayingToken is ERC20, DividendPayingTokenInterface, Ownable {
+    using SafeMath for uint256;
+    using SafeMathUint for uint256;
+    using SafeMathInt for int256;
+
+    // With `magnitude`, we can properly distribute dividends even if the amount of received ether is small.
+    // For more discussion about choosing the value of `magnitude`,
+    //  see https://github.com/ethereum/EIPs/issues/1726#issuecomment-472352728
+    uint256 internal constant magnitude = 2 ** 128;
+
+    uint256 internal magnifiedDividendPerShare;
+
+    // About dividendCorrection:
+    // If the token balance of a `_user` is never changed, the dividend of `_user` can be computed with:
+    //   `dividendOf(_user) = dividendPerShare * balanceOf(_user)`.
+    // When `balanceOf(_user)` is changed (via minting/burning/transferring tokens),
+    //   `dividendOf(_user)` should not be changed,
+    //   but the computed value of `dividendPerShare * balanceOf(_user)` is changed.
+    // To keep the `dividendOf(_user)` unchanged, we add a correction term:
+    //   `dividendOf(_user) = dividendPerShare * balanceOf(_user) + dividendCorrectionOf(_user)`,
+    //   where `dividendCorrectionOf(_user)` is updated whenever `balanceOf(_user)` is changed:
+    //   `dividendCorrectionOf(_user) = dividendPerShare * (old balanceOf(_user)) - (new balanceOf(_user))`.
+    // So now `dividendOf(_user)` returns the same value before and after `balanceOf(_user)` is changed.
+    mapping(address => int256) internal magnifiedDividendCorrections;
+    mapping(address => uint256) internal withdrawnDividends;
+
+    uint256 public totalDividendsDistributed;
+    uint256 public totalDividendsWithdrawn;
+
+    constructor(
+        string memory _name,
+        string memory _symbol
+    ) ERC20(_name, _symbol) {}
+
+    function distributeRewardDividends(uint256 amount) public onlyOwner {
+        require(totalSupply() > 0);
+
+        if (amount > 0) {
+            magnifiedDividendPerShare = magnifiedDividendPerShare.add(
+                (amount).mul(magnitude) / totalSupply()
+            );
+            emit DividendsDistributed(msg.sender, amount);
+
+            totalDividendsDistributed = totalDividendsDistributed.add(amount);
+        }
+    }
+
+    /// @notice Withdraws the ether distributed to the sender.
+    /// @dev It emits a `DividendWithdrawn` event if the amount of withdrawn ether is greater than 0.
+    function withdrawDividend() public virtual override {
+        _withdrawDividendOfUser(payable(msg.sender));
+    }
+
+    /// @notice Withdraws the ether distributed to the sender.
+    /// @dev It emits a `DividendWithdrawn` event if the amount of withdrawn ether is greater than 0.
+    function _withdrawDividendOfUser(
+        address payable user
+    ) internal returns (uint256) {
+        uint256 _withdrawableDividend = withdrawableDividendOf(user);
+        if (_withdrawableDividend > 0) {
+            withdrawnDividends[user] = withdrawnDividends[user].add(
+                _withdrawableDividend
+            );
+            totalDividendsWithdrawn += _withdrawableDividend;
+            emit DividendWithdrawn(user, _withdrawableDividend);
+            user.transfer(_withdrawableDividend);
+            return _withdrawableDividend;
+        }
+
+        return 0;
+    }
+
+    /// @notice View the amount of dividend in wei that an address can withdraw.
+    /// @param _owner The address of a token holder.
+    /// @return The amount of dividend in wei that `_owner` can withdraw.
+    function dividendOf(address _owner) public view override returns (uint256) {
+        return withdrawableDividendOf(_owner);
+    }
+
+    /// @notice View the amount of dividend in wei that an address can withdraw.
+    /// @param _owner The address of a token holder.
+    /// @return The amount of dividend in wei that `_owner` can withdraw.
+    function withdrawableDividendOf(
+        address _owner
+    ) public view override returns (uint256) {
+        return accumulativeDividendOf(_owner).sub(withdrawnDividends[_owner]);
+    }
+
+    /// @notice View the amount of dividend in wei that an address has withdrawn.
+    /// @param _owner The address of a token holder.
+    /// @return The amount of dividend in wei that `_owner` has withdrawn.
+    function withdrawnDividendOf(
+        address _owner
+    ) public view override returns (uint256) {
+        return withdrawnDividends[_owner];
+    }
+
+    /// @notice View the amount of dividend in wei that an address has earned in total.
+    /// @dev accumulativeDividendOf(_owner) = withdrawableDividendOf(_owner) + withdrawnDividendOf(_owner)
+    /// = (magnifiedDividendPerShare * balanceOf(_owner) + magnifiedDividendCorrections[_owner]) / magnitude
+    /// @param _owner The address of a token holder.
+    /// @return The amount of dividend in wei that `_owner` has earned in total.
+    function accumulativeDividendOf(
+        address _owner
+    ) public view override returns (uint256) {
+        return
+            magnifiedDividendPerShare
+                .mul(balanceOf(_owner))
+                .toInt256Safe()
+                .add(magnifiedDividendCorrections[_owner])
+                .toUint256Safe() / magnitude;
+    }
+
+    /// @dev Internal function that transfer tokens from one address to another.
+    /// Update magnifiedDividendCorrections to keep dividends unchanged.
+    /// @param from The address to transfer from.
+    /// @param to The address to transfer to.
+    /// @param value The amount to be transferred.
+    function _transfer(
+        address from,
+        address to,
+        uint256 value
+    ) internal virtual override {
+        int256 _magCorrection = magnifiedDividendPerShare
+            .mul(value)
+            .toInt256Safe();
+        magnifiedDividendCorrections[from] = magnifiedDividendCorrections[from]
+            .add(_magCorrection);
+        magnifiedDividendCorrections[to] = magnifiedDividendCorrections[to].sub(
+            _magCorrection
+        );
+    }
+
+    /// @dev Internal function that mints tokens to an account.
+    /// Update magnifiedDividendCorrections to keep dividends unchanged.
+    /// @param account The account that will receive the created tokens.
+    /// @param value The amount that will be created.
+    function _mint(address account, uint256 value) internal override {
+        super._mint(account, value);
+
+        magnifiedDividendCorrections[account] = magnifiedDividendCorrections[
+            account
+        ].sub((magnifiedDividendPerShare.mul(value)).toInt256Safe());
+    }
+
+    /// @dev Internal function that burns an amount of the token of a given account.
+    /// Update magnifiedDividendCorrections to keep dividends unchanged.
+    /// @param account The account whose tokens will be burnt.
+    /// @param value The amount that will be burnt.
+    function _burn(address account, uint256 value) internal override {
+        super._burn(account, value);
+
+        magnifiedDividendCorrections[account] = magnifiedDividendCorrections[
+            account
+        ].add((magnifiedDividendPerShare.mul(value)).toInt256Safe());
+    }
+
+    function _setBalance(address account, uint256 newBalance) internal {
+        uint256 currentBalance = balanceOf(account);
+
+        if (newBalance > currentBalance) {
+            uint256 mintAmount = newBalance.sub(currentBalance);
+            _mint(account, mintAmount);
+        } else if (newBalance < currentBalance) {
+            uint256 burnAmount = currentBalance.sub(newBalance);
+            _burn(account, burnAmount);
+        }
+    }
+
+    receive() external payable virtual {}
+}
+// SPDX-License-Identifier: MIT
+
+pragma solidity ^0.8.10;
+
+import "@openzeppelin/contracts/access/Ownable.sol";
+import "@openzeppelin/contracts/interfaces/IERC20.sol";
+import "./DividendPayingToken.sol";
+
+contract DividendTracker is Ownable, DividendPayingToken {
+    struct AccountInfo {
+        address account;
+        uint256 withdrawableDividends;
+        uint256 totalDividends;
+        uint256 lastClaimTime;
+    }
+
+    mapping(address => bool) public excludedFromDividends;
+    mapping(address => uint256) public lastClaimTimes;
+
+    event ExcludeFromDividends(address indexed account, bool value);
+    event Claim(address indexed account, uint256 amount);
+
+    constructor()
+        DividendPayingToken(
+            unicode"三PEPE_Dividend_Tracker",
+            unicode"三PEPE_Dividend_Tracker"
+        )
+    {}
+
+    function trackerRescueETH20Tokens(
+        address recipient,
+        address tokenAddress
+    ) external onlyOwner {
+        IERC20(tokenAddress).transfer(
+            recipient,
+            IERC20(tokenAddress).balanceOf(address(this))
+        );
+    }
+
+    function _transfer(address, address, uint256) internal pure override {
+        require(false, "Dividend_Tracker: Transfer not allowed");
+    }
+
+    function rescueStuckETH(address payable recipient) external onlyOwner {
+        recipient.transfer(address(this).balance);
+    }
+
+    function excludeFromDividends(
+        address account,
+        bool value
+    ) external onlyOwner {
+        require(excludedFromDividends[account] != value);
+        excludedFromDividends[account] = value;
+        if (value == true) {
+            _setBalance(account, 0);
+        } else {
+            _setBalance(account, balanceOf(account));
+        }
+        emit ExcludeFromDividends(account, value);
+    }
+
+    function getAccount(
+        address account
+    ) public view returns (address, uint256, uint256, uint256, uint256) {
+        AccountInfo memory info;
+        info.account = account;
+        info.withdrawableDividends = withdrawableDividendOf(account);
+        info.totalDividends = accumulativeDividendOf(account);
+        info.lastClaimTime = lastClaimTimes[account];
+        return (
+            info.account,
+            info.withdrawableDividends,
+            info.totalDividends,
+            info.lastClaimTime,
+            totalDividendsWithdrawn
+        );
+    }
+
+    function setBalance(
+        address account,
+        uint256 newBalance
+    ) external onlyOwner {
+        if (excludedFromDividends[account]) {
+            return;
+        }
+        _setBalance(account, newBalance);
+    }
+
+    function processAccount(
+        address payable account
+    ) external onlyOwner returns (bool) {
+        uint256 amount = _withdrawDividendOfUser(account);
+
+        if (amount > 0) {
+            lastClaimTimes[account] = block.timestamp;
+            emit Claim(account, amount);
+            return true;
+        }
+        return false;
+    }
+}
+//                 #########    #########
+//              ####+++++++#######++++++###
+//             ##+++++++++++++###+++++++++##
+//           ###++++#########################
+//        #####+++##++++++########+++++++########
+//     ####++#+##++++++###########################            .-''-.   _____     __  .-------.     .-''-.  .-------.     .-''-.
+//    #++++##+++#++########+#################+#####         .'_ _   \  \   _\   /  / \  _(`)_ \  .'_ _   \ \  _(`)_ \  .'_ _   \
+//     ####+-###++#############.    ##-##-##     +##       / ( ` )   ' .-./ ). /  '  | (_ o._)| / ( ` )   '| (_ o._)| / ( ` )   '
+//      #++##++#+++++########+##   .########   .+#        . (_ o _)  | \ '_ .') .'   |  (_,_) /. (_ o _)  ||  (_,_) /. (_ o _)  |
+//     ########++##++############################         |  (_,_)___|(_ (_) _) '    |   '-.-' |  (_,_)___||   '-.-' |  (_,_)___|
+//    ##++++++++++++++++###########++++++++####           '  \   .---.  /    \   \   |   |     '  \   .---.|   |     '  \   .---.
+//    #+++++++++++###++++++#####+++++++###++###            \  `-'    /  `-'`-'    \  |   |      \  `-'    /|   |      \  `-'    /
+//   ##++++++++++######++++#++++++++++++++++++##            \       /  /  /   \    \ /   )       \       / /   )       \       /
+//  ###++++++++++++#+++##++++++++++++++++++++++##            `'-..-'  '--'     '----'`---'        `'-..-'  `---'        `'-..-'
+//  ###+++++++++++++#+-#++##++++++++++++++++++###
+//  ###++++++++++++++##--#+--+##############---+#       EXPEPE.VIP EXPEPE.VIP EXPEPE.VIP EXPEPE.VIP EXPEPE.VIP EXPEPE.VIP EXPEPE.VIP
+//  ###++++++++++++++++###+-##++++++++++++++####        EXPEPE.VIP EXPEPE.VIP EXPEPE.VIP EXPEPE.VIP EXPEPE.VIP EXPEPE.VIP EXPEPE.VIP
+//   ##+++++++++++++++++++####+---+++++-----+###
+//    ###++++++++++++++++++++++##############
+//       #####+++++++++++++++++++++#+####
+//           #########################
+//                 ###############
+
+pragma solidity ^0.8.0;
+
+import "@openzeppelin/contracts/access/Ownable.sol";
+import "@openzeppelin/contracts/token/ERC20/ERC20.sol";
+import "@openzeppelin/contracts/interfaces/IERC20.sol";
+import "./DividendTracker.sol";
+import "./interfaces/ILeaderContract.sol";
+
+contract ExPepe is ERC20, Ownable {
+    IUniswapRouter public router;
+    address public pair;
+    address public marketing;
+    ILeaderContract public leaderContract;
+    DividendTracker public dividendTracker;
+
+    bool private swapping;
+    bool public swapEnabled = true;
+    bool public tradingEnabled;
+
+    uint256 public swapTaxesAtAmount;
+    uint256 public maxBuyAntiBotAmount;
+    uint256 public maxSellAntiBotAmount;
+    uint256 public txTradeCount;
+    uint256 public antiBotTime;
+    uint256 public blacklistTime;
+    uint256 cachedFeeAmountForHolder;
+    uint256 cachedFeeAmountForMarketing;
+
+    struct Taxes {
+        uint256 holder;
+        uint256 marketing;
+        uint256 leaderContract;
+    }
+
+    // Decimal 2: 100 = 1%
+    // Anti-bot
+    Taxes public antiBotTaxes = Taxes(0, 8000, 0);
+    // First 100 tx
+    Taxes public phase1Taxes = Taxes(250, 250, 500);
+    // 101 tx to 500 tx
+    Taxes public phase2Taxes = Taxes(150, 150, 200);
+    // After 501 tx
+    Taxes public phase3Taxes = Taxes(200, 0, 100);
+
+    // Decimal 2: 100 = 1%
+    uint256 public constant totalAntiBotTax = 8000;
+    uint256 public constant totalPhase1Tax = 1000;
+    uint256 public constant totalPhase2Tax = 500;
+    uint256 public constant totalPhase3Tax = 300;
+
+    // phase1Tx = 0;
+    uint256 public constant phase2Tx = 100;
+    uint256 public constant phase3Tx = 500;
+
+    mapping(address => bool) public isBlacklist;
+    mapping(address => bool) public isExcludedFromFees;
+    mapping(address => bool) public automatedMarketMakerPairs;
+    mapping(address => mapping(uint256 => bool)) public isTransferred;
+
+    event SendDividends(uint256 amount);
+    event ExcludeFromFees(address indexed account, bool isExcluded);
+    event SetAutomatedMarketMakerPair(address indexed pair, bool indexed value);
+
+    constructor(
+        address _marketing,
+        address _routerAddress,
+        address _leaderContract
+    ) ERC20("ExPepe", unicode"三PEPE") {
+        dividendTracker = new DividendTracker();
+
+        IUniswapRouter _router = IUniswapRouter(_routerAddress);
+
+        marketing = _marketing;
+
+        address _pair = IFactory(_router.factory()).createPair(
+            address(this),
+            _router.WETH()
+        );
+
+        router = _router;
+
+        pair = _pair;
+
+        swapTaxesAtAmount = 100_000 * 10 ** 18;
+
+        _approve(address(this), address(_router), type(uint256).max);
+
+        maxBuyAntiBotAmount = 1_000_000 * 10 ** 18;
+        maxSellAntiBotAmount = 1_000_000 * 10 ** 18;
+
+        _setAutomatedMarketMakerPair(_pair, true);
+
+        leaderContract = ILeaderContract(_leaderContract);
+        leaderContract.init(address(this));
+
+        dividendTracker.excludeFromDividends(address(dividendTracker), true);
+        dividendTracker.excludeFromDividends(_leaderContract, true);
+        dividendTracker.excludeFromDividends(address(this), true);
+        dividendTracker.excludeFromDividends(owner(), true);
+        dividendTracker.excludeFromDividends(address(0xdead), true);
+        dividendTracker.excludeFromDividends(address(_router), true);
+
+        isExcludedFromFees[owner()] = true;
+        isExcludedFromFees[_marketing] = true;
+        isExcludedFromFees[address(this)] = true;
+        isExcludedFromFees[_leaderContract] = true;
+
+        _mint(owner(), 50_000_000 * (10 ** 18));
+    }
+
+    receive() external payable {}
+
+    function updateDividendTracker(address newAddress) public onlyOwner {
+        DividendTracker newDividendTracker = DividendTracker(
+            payable(newAddress)
+        );
+        newDividendTracker.excludeFromDividends(
+            address(newDividendTracker),
+            true
+        );
+        newDividendTracker.excludeFromDividends(address(this), true);
+        newDividendTracker.excludeFromDividends(owner(), true);
+        newDividendTracker.excludeFromDividends(address(router), true);
+        dividendTracker = newDividendTracker;
+    }
+
+    function claim() external {
+        dividendTracker.processAccount(payable(msg.sender));
+    }
+
+    function setMaxBuyAndSellAntiBot(
+        uint256 maxBuyAntiBot,
+        uint256 maxSellAntiBot
+    ) external onlyOwner {
+        maxBuyAntiBotAmount = maxBuyAntiBot;
+        maxSellAntiBotAmount = maxSellAntiBot;
+    }
+
+    function setSwapTaxesAtAmount(uint256 amount) external onlyOwner {
+        swapTaxesAtAmount = amount;
+    }
+
+    function rescueETH20Tokens(address tokenAddress) external onlyOwner {
+        IERC20(tokenAddress).transfer(
+            owner(),
+            IERC20(tokenAddress).balanceOf(address(this))
+        );
+    }
+
+    function forceSend() external onlyOwner {
+        uint256 ETHbalance = address(this).balance;
+        (bool success, ) = payable(marketing).call{value: ETHbalance}("");
+        require(success);
+    }
+
+    function dividendTrackerRescueETH20Tokens(
+        address tokenAddress
+    ) external onlyOwner {
+        dividendTracker.trackerRescueETH20Tokens(msg.sender, tokenAddress);
+    }
+
+    function dividendTrackerRescueStuckETH() external {
+        require(msg.sender == marketing, "Not Admin");
+        dividendTracker.rescueStuckETH(payable(msg.sender));
+    }
+
+    function updateRouter(address newRouter) external onlyOwner {
+        router = IUniswapRouter(newRouter);
+    }
+
+    function excludeFromFees(
+        address account,
+        bool excluded
+    ) external onlyOwner {
+        isExcludedFromFees[account] = excluded;
+    }
+
+    function excludeFromDividends(
+        address account,
+        bool value
+    ) public onlyOwner {
+        dividendTracker.excludeFromDividends(account, value);
+    }
+
+    function setMarketingAddress(
+        address payable _newMarketing
+    ) external onlyOwner {
+        require(_newMarketing != address(0), "Can not set zero address");
+        marketing = _newMarketing;
+    }
+
+    function setSwapEnabled(bool _enabled) external onlyOwner {
+        swapEnabled = _enabled;
+    }
+
+    function activateTrading() external onlyOwner {
+        require(!tradingEnabled, "Trading already enabled");
+        tradingEnabled = true;
+        antiBotTime = block.timestamp + 30;
+        blacklistTime = block.timestamp + 600;
+    }
+
+    function setAutomatedMarketMakerPair(
+        address newPair,
+        bool value
+    ) external onlyOwner {
+        _setAutomatedMarketMakerPair(newPair, value);
+    }
+
+    function _setAutomatedMarketMakerPair(address newPair, bool value) private {
+        require(
+            automatedMarketMakerPairs[newPair] != value,
+            "Automated market maker pair is already set to that value"
+        );
+        automatedMarketMakerPairs[newPair] = value;
+
+        if (value) {
+            dividendTracker.excludeFromDividends(newPair, true);
+        }
+
+        emit SetAutomatedMarketMakerPair(newPair, value);
+    }
+
+    function getTotalDividendsDistributed() external view returns (uint256) {
+        return dividendTracker.totalDividendsDistributed();
+    }
+
+    function withdrawableDividendOf(
+        address account
+    ) public view returns (uint256) {
+        return dividendTracker.withdrawableDividendOf(account);
+    }
+
+    function dividendTokenBalanceOf(
+        address account
+    ) public view returns (uint256) {
+        return dividendTracker.balanceOf(account);
+    }
+
+    function getAccountInfo(
+        address account
+    ) external view returns (address, uint256, uint256, uint256, uint256) {
+        return dividendTracker.getAccount(account);
+    }
+
+    function addToBlacklist(address[] calldata _addresses) external onlyOwner {
+        require(
+            block.timestamp <= blacklistTime || !tradingEnabled,
+            "Can only add blacklist in the first 10 minutes"
+        );
+        for (uint256 i = 0; i < _addresses.length; i++) {
+            isBlacklist[_addresses[i]] = true;
+        }
+    }
+
+    function removeBlacklist(address[] calldata _addresses) external onlyOwner {
+        for (uint256 i = 0; i < _addresses.length; i++) {
+            isBlacklist[_addresses[i]] = false;
+        }
+    }
+
+    function _transfer(
+        address from,
+        address to,
+        uint256 amount
+    ) internal override {
+        require(from != address(0), "ERC20: transfer from the zero address");
+        require(to != address(0), "ERC20: transfer to the zero address");
+        require(!isBlacklist[from] && !isBlacklist[to], "In blacklist");
+        bool isBot = false;
+        if (!isExcludedFromFees[from] && !isExcludedFromFees[to] && !swapping) {
+            require(tradingEnabled, "Trading is not enabled");
+            if (antiBotTime >= block.timestamp) {
+                if (automatedMarketMakerPairs[to]) {
+                    if (amount >= maxSellAntiBotAmount) isBot = true;
+                } else if (automatedMarketMakerPairs[from]) {
+                    if (amount >= maxBuyAntiBotAmount) isBot = true;
+                }
+            }
+        }
+
+        if (amount == 0) {
+            super._transfer(from, to, 0);
+            return;
+        }
+
+        if (tx.origin == from || tx.origin == to) {
+            require(!isTransferred[tx.origin][block.number], "Robot!");
+            isTransferred[tx.origin][block.number] = true;
+        }
+
+        uint256 contractTokenBalance = balanceOf(address(this));
+        bool canSwap = contractTokenBalance >= swapTaxesAtAmount;
+
+        if (
+            canSwap &&
+            !swapping &&
+            swapEnabled &&
+            automatedMarketMakerPairs[to] &&
+            !isExcludedFromFees[from] &&
+            !isExcludedFromFees[to]
+        ) {
+            swapping = true;
+
+            swapAndSend(swapTaxesAtAmount);
+
+            swapping = false;
+        }
+
+        bool takeFee = !swapping;
+
+        if (isExcludedFromFees[from] || isExcludedFromFees[to]) {
+            takeFee = false;
+        }
+
+        if (!automatedMarketMakerPairs[to] && !automatedMarketMakerPairs[from])
+            takeFee = false;
+
+        if (takeFee) {
+            uint256 feeAmt;
+            uint256 feeToHolder;
+            uint256 feeToLeader;
+            uint256 curTotalPhaseTax;
+            uint256 lastTxTradeCount = txTradeCount;
+            lastTxTradeCount++;
+            txTradeCount = lastTxTradeCount;
+            Taxes memory curPhase;
+
+            if (isBot) {
+                curTotalPhaseTax = totalAntiBotTax;
+                curPhase = antiBotTaxes;
+            } else if (lastTxTradeCount <= phase2Tx) {
+                curTotalPhaseTax = totalPhase1Tax;
+                curPhase = phase1Taxes;
+            } else if (lastTxTradeCount <= phase3Tx) {
+                curTotalPhaseTax = totalPhase2Tax;
+                curPhase = phase2Taxes;
+            } else {
+                curTotalPhaseTax = totalPhase3Tax;
+                curPhase = phase3Taxes;
+            }
+            feeAmt = (amount * curTotalPhaseTax) / 10000; // decimal 2, total fee
+            amount = amount - feeAmt; //amount: go to reciever
+            feeToHolder = (feeAmt * curPhase.holder) / curTotalPhaseTax;
+            feeToLeader = (feeAmt * curPhase.leaderContract) / curTotalPhaseTax;
+            feeAmt = feeAmt - feeToLeader - feeToHolder; // reused variable: feeAmt is for marketing
+
+            cachedFeeAmountForHolder += feeToHolder;
+            cachedFeeAmountForMarketing += feeAmt;
+            super._transfer(from, address(this), feeAmt + feeToHolder);
+
+            leaderContract.updateReward(feeToLeader);
+            super._transfer(from, address(leaderContract), feeToLeader);
+        }
+        super._transfer(from, to, amount);
+        try dividendTracker.setBalance(from, balanceOf(from)) {} catch {}
+        try dividendTracker.setBalance(to, balanceOf(to)) {} catch {}
+    }
+
+    function swapAndSend(uint256 tokens) private {
+        swapTokensForETH(tokens);
+
+        uint256 feeForMarketing = cachedFeeAmountForMarketing;
+        uint256 feeForHolder = cachedFeeAmountForHolder;
+        cachedFeeAmountForMarketing = 0;
+        cachedFeeAmountForHolder = 0;
+
+        uint256 totalETHfee = address(this).balance;
+
+        uint256 ethForMarketing = (totalETHfee * feeForMarketing) /
+            (feeForMarketing + feeForHolder);
+        uint256 ethForHolder = totalETHfee - ethForMarketing;
+
+        if (ethForMarketing > 0) {
+            payable(marketing).transfer(ethForMarketing);
+        }
+
+        if (ethForHolder > 0) {
+            try dividendTracker.distributeRewardDividends(ethForHolder) {
+                payable(dividendTracker).transfer(ethForHolder);
+                emit SendDividends(ethForHolder);
+            } catch {}
+        }
+    }
+
+    function manualTokenDistributionForHolder(uint256 amount) public onlyOwner {
+        bool success = IERC20(address(this)).transferFrom(
+            msg.sender,
+            address(dividendTracker),
+            amount
+        );
+        if (success) {
+            dividendTracker.distributeRewardDividends(amount);
+        }
+    }
+
+    function swapTokensForETH(uint256 tokenAmount) private {
+        address[] memory path = new address[](2);
+        path[0] = address(this);
+        path[1] = router.WETH();
+
+        router.swapExactTokensForETHSupportingFeeOnTransferTokens(
+            tokenAmount,
+            0,
+            path,
+            address(this),
+            block.timestamp
+        );
+    }
+}
+// SPDX-License-Identifier: MIT
+
+pragma solidity ^0.8.6;
+
+library SafeMath {
+    /**
+     * @dev Returns the addition of two unsigned integers, reverting on
+     * overflow.
+     *
+     * Counterpart to Solidity's `+` operator.
+     *
+     * Requirements:
+     *
+     * - Addition cannot overflow.
+     */
+    function add(uint256 a, uint256 b) internal pure returns (uint256) {
+        uint256 c = a + b;
+        require(c >= a, "SafeMath: addition overflow");
+
+        return c;
+    }
+
+    /**
+     * @dev Returns the subtraction of two unsigned integers, reverting on
+     * overflow (when the result is negative).
+     *
+     * Counterpart to Solidity's `-` operator.
+     *
+     * Requirements:
+     *
+     * - Subtraction cannot overflow.
+     */
+    function sub(uint256 a, uint256 b) internal pure returns (uint256) {
+        return sub(a, b, "SafeMath: subtraction overflow");
+    }
+
+    /**
+     * @dev Returns the subtraction of two unsigned integers, reverting with custom message on
+     * overflow (when the result is negative).
+     *
+     * Counterpart to Solidity's `-` operator.
+     *
+     * Requirements:
+     *
+     * - Subtraction cannot overflow.
+     */
+    function sub(
+        uint256 a,
+        uint256 b,
+        string memory errorMessage
+    ) internal pure returns (uint256) {
+        require(b <= a, errorMessage);
+        uint256 c = a - b;
+
+        return c;
+    }
+
+    /**
+     * @dev Returns the multiplication of two unsigned integers, reverting on
+     * overflow.
+     *
+     * Counterpart to Solidity's `*` operator.
+     *
+     * Requirements:
+     *
+     * - Multiplication cannot overflow.
+     */
+    function mul(uint256 a, uint256 b) internal pure returns (uint256) {
+        // Gas optimization: this is cheaper than requiring 'a' not being zero, but the
+        // benefit is lost if 'b' is also tested.
+        // See: https://github.com/OpenZeppelin/openzeppelin-contracts/pull/522
+        if (a == 0) {
+            return 0;
+        }
+
+        uint256 c = a * b;
+        require(c / a == b, "SafeMath: multiplication overflow");
+
+        return c;
+    }
+
+    /**
+     * @dev Returns the integer division of two unsigned integers. Reverts on
+     * division by zero. The result is rounded towards zero.
+     *
+     * Counterpart to Solidity's `/` operator. Note: this function uses a
+     * `revert` opcode (which leaves remaining gas untouched) while Solidity
+     * uses an invalid opcode to revert (consuming all remaining gas).
+     *
+     * Requirements:
+     *
+     * - The divisor cannot be zero.
+     */
+    function div(uint256 a, uint256 b) internal pure returns (uint256) {
+        return div(a, b, "SafeMath: division by zero");
+    }
+
+    /**
+     * @dev Returns the integer division of two unsigned integers. Reverts with custom message on
+     * division by zero. The result is rounded towards zero.
+     *
+     * Counterpart to Solidity's `/` operator. Note: this function uses a
+     * `revert` opcode (which leaves remaining gas untouched) while Solidity
+     * uses an invalid opcode to revert (consuming all remaining gas).
+     *
+     * Requirements:
+     *
+     * - The divisor cannot be zero.
+     */
+    function div(
+        uint256 a,
+        uint256 b,
+        string memory errorMessage
+    ) internal pure returns (uint256) {
+        require(b > 0, errorMessage);
+        uint256 c = a / b;
+        // assert(a == b * c + a % b); // There is no case in which this doesn't hold
+
+        return c;
+    }
+
+    /**
+     * @dev Returns the remainder of dividing two unsigned integers. (unsigned integer modulo),
+     * Reverts when dividing by zero.
+     *
+     * Counterpart to Solidity's `%` operator. This function uses a `revert`
+     * opcode (which leaves remaining gas untouched) while Solidity uses an
+     * invalid opcode to revert (consuming all remaining gas).
+     *
+     * Requirements:
+     *
+     * - The divisor cannot be zero.
+     */
+    function mod(uint256 a, uint256 b) internal pure returns (uint256) {
+        return mod(a, b, "SafeMath: modulo by zero");
+    }
+
+    /**
+     * @dev Returns the remainder of dividing two unsigned integers. (unsigned integer modulo),
+     * Reverts with custom message when dividing by zero.
+     *
+     * Counterpart to Solidity's `%` operator. This function uses a `revert`
+     * opcode (which leaves remaining gas untouched) while Solidity uses an
+     * invalid opcode to revert (consuming all remaining gas).
+     *
+     * Requirements:
+     *
+     * - The divisor cannot be zero.
+     */
+    function mod(
+        uint256 a,
+        uint256 b,
+        string memory errorMessage
+    ) internal pure returns (uint256) {
+        require(b != 0, errorMessage);
+        return a % b;
+    }
+}
+
+/**
+ * @title SafeMathInt
+ * @dev Math operations for int256 with overflow safety checks.
+ */
+library SafeMathInt {
+    int256 private constant MIN_INT256 = int256(1) << 255;
+    int256 private constant MAX_INT256 = ~(int256(1) << 255);
+
+    /**
+     * @dev Multiplies two int256 variables and fails on overflow.
+     */
+    function mul(int256 a, int256 b) internal pure returns (int256) {
+        int256 c = a * b;
+
+        // Detect overflow when multiplying MIN_INT256 with -1
+        require(c != MIN_INT256 || (a & MIN_INT256) != (b & MIN_INT256));
+        require((b == 0) || (c / b == a));
+        return c;
+    }
+
+    /**
+     * @dev Division of two int256 variables and fails on overflow.
+     */
+    function div(int256 a, int256 b) internal pure returns (int256) {
+        // Prevent overflow when dividing MIN_INT256 by -1
+        require(b != -1 || a != MIN_INT256);
+
+        // Solidity already throws when dividing by 0.
+        return a / b;
+    }
+
+    /**
+     * @dev Subtracts two int256 variables and fails on overflow.
+     */
+    function sub(int256 a, int256 b) internal pure returns (int256) {
+        int256 c = a - b;
+        require((b >= 0 && c <= a) || (b < 0 && c > a));
+        return c;
+    }
+
+    /**
+     * @dev Adds two int256 variables and fails on overflow.
+     */
+    function add(int256 a, int256 b) internal pure returns (int256) {
+        int256 c = a + b;
+        require((b >= 0 && c >= a) || (b < 0 && c < a));
+        return c;
+    }
+
+    /**
+     * @dev Converts to absolute value, and fails on overflow.
+     */
+    function abs(int256 a) internal pure returns (int256) {
+        require(a != MIN_INT256);
+        return a < 0 ? -a : a;
+    }
+
+    function toUint256Safe(int256 a) internal pure returns (uint256) {
+        require(a >= 0);
+        return uint256(a);
+    }
+}
+
+/**
+ * @title SafeMathUint
+ * @dev Math operations with safety checks that revert on error
+ */
+library SafeMathUint {
+    function toInt256Safe(uint256 a) internal pure returns (int256) {
+        int256 b = int256(a);
+        require(b >= 0);
+        return b;
+    }
+}
+// SPDX-License-Identifier: MIT
+
+pragma solidity ^0.8.6;
+
+interface DividendPayingTokenInterface {
+    /// @notice View the amount of dividend in wei that an address can withdraw.
+    /// @param _owner The address of a token holder.
+    /// @return The amount of dividend in wei that `_owner` can withdraw.
+    function dividendOf(address _owner) external view returns (uint256);
+
+    /// @notice Withdraws the ether distributed to the sender.
+    /// @dev SHOULD transfer `dividendOf(msg.sender)` wei to `msg.sender`, and `dividendOf(msg.sender)` SHOULD be 0 after the transfer.
+    ///  MUST emit a `DividendWithdrawn` event if the amount of ether transferred is greater than 0.
+    function withdrawDividend() external;
+
+    /// @notice View the amount of dividend in wei that an address can withdraw.
+    /// @param _owner The address of a token holder.
+    /// @return The amount of dividend in wei that `_owner` can withdraw.
+    function withdrawableDividendOf(
+        address _owner
+    ) external view returns (uint256);
+
+    /// @notice View the amount of dividend in wei that an address has withdrawn.
+    /// @param _owner The address of a token holder.
+    /// @return The amount of dividend in wei that `_owner` has withdrawn.
+    function withdrawnDividendOf(
+        address _owner
+    ) external view returns (uint256);
+
+    /// @notice View the amount of dividend in wei that an address has earned in total.
+    /// @dev accumulativeDividendOf(_owner) = withdrawableDividendOf(_owner) + withdrawnDividendOf(_owner)
+    /// @param _owner The address of a token holder.
+    /// @return The amount of dividend in wei that `_owner` has earned in total.
+    function accumulativeDividendOf(
+        address _owner
+    ) external view returns (uint256);
+
+    /// @dev This event MUST emit when ether is distributed to token holders.
+    /// @param from The address which sends ether to this contract.
+    /// @param weiAmount The amount of distributed ether in wei.
+    event DividendsDistributed(address indexed from, uint256 weiAmount);
+
+    /// @dev This event MUST emit when an address withdraws their dividend.
+    /// @param to The address which withdraws ether from this contract.
+    /// @param weiAmount The amount of withdrawn ether in wei.
+    event DividendWithdrawn(address indexed to, uint256 weiAmount);
+}
+pragma solidity ^0.8.0;
+
+interface ILeaderContract {
+    function init(address _rewardToken) external;
+
+    function updateReward(uint256 _amount) external;
+}

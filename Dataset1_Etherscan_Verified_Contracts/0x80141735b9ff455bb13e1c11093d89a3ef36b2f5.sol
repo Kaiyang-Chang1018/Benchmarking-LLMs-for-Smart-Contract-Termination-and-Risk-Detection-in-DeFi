@@ -1,0 +1,128 @@
+pragma solidity ^0.5.16;
+
+/**
+ * @title ERC 20 Token Standard Interface
+ *  https://eips.ethereum.org/EIPS/eip-20
+ */
+interface EIP20Interface {
+    function name() external view returns (string memory);
+    function symbol() external view returns (string memory);
+    function decimals() external view returns (uint8);
+
+    /**
+      * @notice Get the total number of tokens in circulation
+      * @return The supply of tokens
+      */
+    function totalSupply() external view returns (uint256);
+
+    /**
+     * @notice Gets the balance of the specified address
+     * @param owner The address from which the balance will be retrieved
+     * @return The balance
+     */
+    function balanceOf(address owner) external view returns (uint256 balance);
+
+    /**
+      * @notice Transfer `amount` tokens from `msg.sender` to `dst`
+      * @param dst The address of the destination account
+      * @param amount The number of tokens to transfer
+      * @return Whether or not the transfer succeeded
+      */
+    function transfer(address dst, uint256 amount) external returns (bool success);
+
+    /**
+      * @notice Transfer `amount` tokens from `src` to `dst`
+      * @param src The address of the source account
+      * @param dst The address of the destination account
+      * @param amount The number of tokens to transfer
+      * @return Whether or not the transfer succeeded
+      */
+    function transferFrom(address src, address dst, uint256 amount) external returns (bool success);
+
+    /**
+      * @notice Approve `spender` to transfer up to `amount` from `src`
+      * @dev This will overwrite the approval amount for `spender`
+      *  and is subject to issues noted [here](https://eips.ethereum.org/EIPS/eip-20#approve)
+      * @param spender The address of the account which may transfer tokens
+      * @param amount The number of tokens that are approved (-1 means infinite)
+      * @return Whether or not the approval succeeded
+      */
+    function approve(address spender, uint256 amount) external returns (bool success);
+
+    /**
+      * @notice Get the current allowance from `owner` for `spender`
+      * @param owner The address of the account which owns the tokens to be spent
+      * @param spender The address of the account which may transfer tokens
+      * @return The number of tokens allowed to be spent (-1 means infinite)
+      */
+    function allowance(address owner, address spender) external view returns (uint256 remaining);
+
+    event Transfer(address indexed from, address indexed to, uint256 amount);
+    event Approval(address indexed owner, address indexed spender, uint256 amount);
+}
+pragma solidity >=0.5.16;
+pragma experimental ABIEncoderV2;
+
+import "./EIP20Interface.sol";
+
+contract DividendRecordsV4 {
+    /// @notice ESG token
+    EIP20Interface public esg;
+
+    /// @notice Emitted when ESG is claimed 
+    event EsgClaimed(address account, uint userAmount, address wallet, uint feeAmount);
+
+    address public _marketingWalletAddress;
+    uint256 public _feeRate = 15;
+
+    mapping (address => uint256) public bonuslist;
+    address public owner;
+
+    constructor(address esgAddress, address _marketingWallet) public {
+        owner = msg.sender;
+        _marketingWalletAddress = _marketingWallet;
+        esg = EIP20Interface(esgAddress);
+    }
+
+    modifier onlyOwner() {
+        require(msg.sender == owner, "Only owner can call this function.");
+        _;
+    }
+
+    function setFeeRate(uint256 _fee) onlyOwner public {
+        require(_fee <= 100, "Fee rate must be less than or equal to 100%");
+        _feeRate = _fee;
+    }
+
+    function setFeeWallets(address _wallet) onlyOwner public {
+        require(_wallet != address(0), "Invalid address");
+        _marketingWalletAddress = _wallet;
+    }
+
+    function setEsgAmount(address[] memory _to, uint256[] memory _amount) onlyOwner public returns (bool) {
+        require(_to.length == _amount.length, "The length of the two arrays must be the same");
+        for (uint256 i = 0; i < _to.length; i++) {
+            bonuslist[_to[i]] += _amount[i];
+        }
+        return true;
+    }
+
+    function claim() public returns (bool) {
+        require(bonuslist[msg.sender] > 0, "No locked amount.");
+        uint256 totalAmount = bonuslist[msg.sender];
+        bonuslist[msg.sender] = 0;
+        uint256 feeWallet = totalAmount * _feeRate / 100;
+        uint256 userAmount = totalAmount - feeWallet;
+        
+        esg.transfer(_marketingWalletAddress, feeWallet);
+        esg.transfer(msg.sender, userAmount);
+
+        emit EsgClaimed(msg.sender, userAmount, _marketingWalletAddress, feeWallet);
+        return true;
+    }
+
+    function transferOwnership(address newOwner) onlyOwner public {
+        require(newOwner != address(0), "New owner is the zero address");
+        owner = newOwner;
+    }
+}
