@@ -1,0 +1,602 @@
+[
+  {
+    "address": "0xb7a82a07464ec5e062882cc902d3c551121406b2",
+    "type": "Asset_Management",
+    "Vulnerability": ["arbitrary-send-eth", "unprotected-upgrade", "weak-prng"],
+    "Termination Pattern": []
+  },
+  {
+    "address": "0x572b872de4a72de77b32c22566a6cccc3d1b32d8",
+    "type": "Asset_Management",
+    "Vulnerability": ["reentrancy-eth", "arbitrary transferFrom"],
+    "Termination Pattern": ["proxy"]
+  },
+  {
+    "address": "0x263190d31d1e7c46de703ecedc46fd425afdefd3",
+    "type": "Asset_Management",
+    "Vulnerability": ["unchecked-transfer", "array-by-reference"],
+    "Termination Pattern": []
+  },
+  {
+    "address": "0x96b551bfa30aac094fde1f8af7829c807bd55454",
+    "type": "Asset_Management",
+    "Vulnerability": ["protected-vars", "suicidal"],
+    "Termination Pattern": []
+  },
+  {
+    "address": "0x461180b3b8d2ef6f783c0888c08f3fc5bede33c7",
+    "type": "Asset_Management",
+    "Vulnerability": ["arbitrary-send-erc20", "name-reused", "uninitialized-storage"],
+    "Termination Pattern": []
+  },
+  {
+    "address": "0x5ffb3cac4b27e33c3c6a6db055ad76a557987743",
+    "type": "Asset_Management",
+    "Vulnerability": ["multiple-constructors", "weak-prng"],
+    "Termination Pattern": []
+  },
+  {
+    "address": "0xc96e1a26264d965078bd01eaceb129a65c09ffe7",
+    "type": "Asset_Management",
+    "Vulnerability": ["shadowing-state", "unprotected-upgrade"],
+    "Termination Pattern": []
+  },
+  {
+    "address": "0xaedfa973ad67e261f360153000520825194cff0b",
+    "type": "Asset_Management",
+    "Vulnerability": ["rtlo"],
+    "Termination Pattern": []
+  },
+  {
+    "address": "0x17dec2af8018f2f940d34787399ea123ff292963",
+    "type": "Asset_Management",
+    "Vulnerability": ["incorrect-shift", "arbitrary-send-eth"],
+    "Termination Pattern": []
+  },
+  {
+    "address": "0x02c03bf79251d13c36fb52e735a5aa1fb1bc887b",
+    "type": "Asset_Management",
+    "Vulnerability": ["controlled-delegatecall", "encode-packed-collision"],
+    "Termination Pattern": []
+  },
+  {
+    "address": "0x0a3f6849f78076aefaDf113F5BED87720274dDC0",
+    "type": "Governance",
+    "Vulnerability": ["unprotected-upgrade", "unchecked-transfer"],
+    "Termination Pattern": []
+  },
+  {
+    "address": "0xC4e172459f1E7939D522503B81AFAaC1014CE6F6",
+    "type": "Governance",
+    "Vulnerability": ["arbitrary-send-erc20", "public-mappings-nested"],
+    "Termination Pattern": []
+  },
+  {
+    "address": "0x53a328F4086d7C0F1Fa19e594c9b842125263026",
+    "type": "Governance",
+    "Vulnerability": ["weak-prng", "shadowing-state", "uninitialized-state"],
+    "Termination Pattern": ["proxy"]
+  },
+  {
+    "address": "0xc0Da02939E1441F497fd74F78cE7Decb17B66529",
+    "type": "Governance",
+    "Vulnerability": ["reentrancy-eth"],
+    "Termination Pattern": ["proxy"]
+  },
+  {
+    "address": "0xbBCf169eE191A1Ba7371F30A1C344bFC498b29Cf",
+    "type": "Governance",
+    "Vulnerability": ["array-by-reference", "rtlo"],
+    "Termination Pattern": []
+  },
+  {
+    "address": "0x4b29d8b250b8b442ecfcd3a4e3d91933d2db720f",
+    "type": "Governance",
+    "Vulnerability": ["name-reused", "arbitrary transferFrom"],
+    "Termination Pattern": []
+  },
+  {
+    "address": "0x8d571f27fdb9d55e9a885f8d2b47349f3670a956",
+    "type": "Governance",
+    "Vulnerability": ["incorrect-shift", "suicidal"],
+    "Termination Pattern": ["proxy"]
+  },
+  {
+    "address": "0x408ED6354d4973f66138C91495F2f2FCbd8724C3",
+    "type": "Governance",
+    "Vulnerability": ["protected-vars", "encode-packed-collision"],
+    "Termination Pattern": ["proxy"]
+  },
+  {
+    "address": "0xEC568fffba86c094cf06b22134B23074DFE2252c",
+    "type": "Governance",
+    "Vulnerability": ["multiple-constructors"],
+    "Termination Pattern": []
+  },
+  {
+    "address": "0x8E2a84D6adE1E7ffFEe039A35EF5F19F13057152",
+    "type": "Governance",
+    "Vulnerability": ["uninitialized-storage"],
+    "Termination Pattern": []
+  },
+  {
+    "address": "0x68b3465833fb72A70ecDF485E0e4C7bD8665Fc45",
+    "type": "Trading",
+    "Vulnerability": ["arbitrary-send-eth", "reentrancy-eth"],
+    "Termination Pattern": []
+  },
+  {
+    "address": "0x3fC91A3afd70395Cd496C647d5a6CC9D4B2b7FAD",
+    "type": "Trading",
+    "Vulnerability": ["unprotected-upgrade"],
+    "Termination Pattern": []
+  },
+  {
+    "address": "0x7a250d5630B4cF539739dF2C5dAcb4c659F2488D",
+    "type": "Trading",
+    "Vulnerability": ["weak-prng", "array-by-reference"],
+    "Termination Pattern": []
+  },
+  {
+    "address": "0xEfF92A263d31888d860bD50809A8D171709b7b1c",
+    "type": "Trading",
+    "Vulnerability": ["name-reused", "shadowing-state"],
+    "Termination Pattern": []
+  },
+  {
+    "address": "0xd9e1cE17f2641f24aE83637ab66a2cca9C378B9F",
+    "type": "Trading",
+    "Vulnerability": ["arbitrary-send-erc20", "uninitialized-state"],
+    "Termination Pattern": []
+  },
+  {
+    "address": "0xEF0881eC094552b2e128Cf945EF17a6752B4Ec5d",
+    "type": "Trading",
+    "Vulnerability": ["rtlo", "multiple-constructors"],
+    "Termination Pattern": ["proxy"]
+  },
+  {
+    "address": "0x2F50D538606Fa9EDD2B11E2446BEb18C9D5846bB",
+    "type": "Trading",
+    "Vulnerability": ["protected-vars"],
+    "Termination Pattern": []
+  },
+  {
+    "address": "0x5C69bEe701ef814a2B6a3EDD4B1652CB9cc5aA6f",
+    "type": "Trading",
+    "Vulnerability": ["encode-packed-collision", "arbitrary transferFrom"],
+    "Termination Pattern": ["proxy"]
+  },
+  {
+    "address": "0x6131B5fae19EA4f9D964eAc0408E4408b66337b5",
+    "type": "Trading",
+    "Vulnerability": ["incorrect-shift"],
+    "Termination Pattern": []
+  },
+  {
+    "address": "0x99a58482BD75cbab83b27EC03CA68fF489b5788f",
+    "type": "Trading",
+    "Vulnerability": ["suicidal", "public-mappings-nested"],
+    "Termination Pattern": []
+  },
+  {
+    "address": "0x3d9819210A31b4961b30EF54bE2aeD79B9c9Cd3B",
+    "type": "Interoperability",
+    "Vulnerability": ["unchecked-transfer"],
+    "Termination Pattern": ["proxy"]
+  },
+  {
+    "address": "0x6B175474E89094C44Da98b954EedeAC495271d0F",
+    "type": "Interoperability",
+    "Vulnerability": ["reentrancy-eth", "weak-prng"],
+    "Termination Pattern": []
+  },
+  {
+    "address": "0x24b2668bf2d0c198c564f4b62bab57f04880594a",
+    "type": "Interoperability",
+    "Vulnerability": ["arbitrary-send-eth", "unprotected-upgrade"],
+    "Termination Pattern": ["emergency stop", "proxy"]
+  },
+  {
+    "address": "0x76622c605e73b567702c80aa496764b388855949",
+    "type": "Interoperability",
+    "Vulnerability": ["array-by-reference", "name-reused"],
+    "Termination Pattern": []
+  },
+  {
+    "address": "0xc7eb97c311ae8e904a5eaa56e3d24ee0148abf34",
+    "type": "Interoperability",
+    "Vulnerability": ["shadowing-state"],
+    "Termination Pattern": []
+  },
+  {
+    "address": "0xB53C1a33016B2DC2fF3653530bfF1848a515c8c5",
+    "type": "Interoperability",
+    "Vulnerability": ["arbitrary-send-erc20", "uninitialized-storage"],
+    "Termination Pattern": ["proxy"]
+  },
+  {
+    "address": "0x5C69bEe701ef814a2B6a3EDD4B1652CB9cc5aA6f",
+    "type": "Interoperability",
+    "Vulnerability": ["rtlo", "multiple-constructors"],
+    "Termination Pattern": ["proxy"]
+  },
+  {
+    "address": "0x5f4eC3Df9cbd43714FE2740f5E3616155c5b8419",
+    "type": "Interoperability",
+    "Vulnerability": ["protected-vars"],
+    "Termination Pattern": []
+  },
+  {
+    "address": "0x8e3815ef103b8d8528778969cd53baa2e94be25e",
+    "type": "Interoperability",
+    "Vulnerability": ["encode-packed-collision", "arbitrary transferFrom"],
+    "Termination Pattern": ["proxy"]
+  },
+  {
+    "address": "0x5f18C75AbDAe578b483E5F43f12a39cF75b973a9",
+    "type": "Interoperability",
+    "Vulnerability": ["incorrect-shift"],
+    "Termination Pattern": []
+  },
+  {
+    "address": "0xBBBBBbbBBb9cC5e90e3b3Af64bdAF62C37EEFFCb",
+    "type": "Lending",
+    "Vulnerability": ["suicidal"],
+    "Termination Pattern": []
+  },
+  {
+    "address": "0x3d9819210A31b4961b30EF54bE2aeD79B9c9Cd3B",
+    "type": "Lending",
+    "Vulnerability": ["public-mappings-nested"],
+    "Termination Pattern": ["proxy"]
+  },
+  {
+    "address": "0x6B175474E89094C44Da98b954EedeAC495271d0F",
+    "type": "Lending",
+    "Vulnerability": ["unchecked-transfer"],
+    "Termination Pattern": []
+  },
+  {
+    "address": "0xB53C1a33016B2DC2fF3653530bfF1848a515c8c5",
+    "type": "Lending",
+    "Vulnerability": ["reentrancy-eth", "weak-prng"],
+    "Termination Pattern": ["proxy"]
+  },
+  {
+    "address": "0x7d2768dE32b0b80b7a3454c06BdAc94A69DDc7A9",
+    "type": "Lending",
+    "Vulnerability": ["arbitrary-send-eth", "unprotected-upgrade"],
+    "Termination Pattern": ["proxy"]
+  },
+  {
+    "address": "0x5f98805A4E8be255a32880FDeC7F6728C6568bA0",
+    "type": "Lending",
+    "Vulnerability": ["array-by-reference"],
+    "Termination Pattern": []
+  },
+  {
+    "address": "0x1E0447b19BB6EcFdAe1e4AE1694b0C3659614e4e",
+    "type": "Lending",
+    "Vulnerability": ["name-reused"],
+    "Termination Pattern": []
+  },
+  {
+    "address": "0x398eC7346DcD622eDc5ae82352F02bE94C62d119",
+    "type": "Lending",
+    "Vulnerability": ["arbitrary-send-erc20"],
+    "Termination Pattern": ["proxy"]
+  },
+  {
+    "address": "0x5d3a536E4D6DbD6114cc1Ead35777bAB948E3643",
+    "type": "Lending",
+    "Vulnerability": ["uninitialized-storage"],
+    "Termination Pattern": ["proxy"]
+  },
+  {
+    "address": "0x5ef30b9986345249bc32d8928B7ee64DE9435E39",
+    "type": "Lending",
+    "Vulnerability": ["shadowing-state", "rtlo"],
+    "Termination Pattern": []
+  },
+  {
+    "address": "0x0F5D2fB29fb7d3CFeE444a200298f468908cC942",
+    "type": "Gamefi",
+    "Vulnerability": ["multiple-constructors", "protected-vars"],
+    "Termination Pattern": ["emergency stop"]
+  },
+  {
+    "address": "0x3F382DbD960E3a9bbCeaE22651E88158d2791550",
+    "type": "Gamefi",
+    "Vulnerability": ["encode-packed-collision"],
+    "Termination Pattern": []
+  },
+  {
+    "address": "0xBB0E17EF65F82Ab018d8EDd776e8DD940327B28b",
+    "type": "Gamefi",
+    "Vulnerability": ["arbitrary transferFrom", "incorrect-shift"],
+    "Termination Pattern": []
+  },
+  {
+    "address": "0xAC51066d7bEC65Dc4589368da368b212745d63E8",
+    "type": "Gamefi",
+    "Vulnerability": ["suicidal"],
+    "Termination Pattern": []
+  },
+  {
+    "address": "0xf81f191e2935bd5cf4b118c3dd511ac523751336",
+    "type": "Gamefi",
+    "Vulnerability": ["public-mappings-nested"],
+    "Termination Pattern": []
+  },
+  {
+    "address": "0x06012c8cf97bead5deae237070f9587f8e7a266d",
+    "type": "Gamefi",
+    "Vulnerability": ["unchecked-transfer"],
+    "Termination Pattern": ["emergency stop"]
+  },
+  {
+    "address": "0xc6763c883755412b3fAB050895656362d0447dA2",
+    "type": "Gamefi",
+    "Vulnerability": ["reentrancy-eth"],
+    "Termination Pattern": ["emergency stop"]
+  },
+  {
+    "address": "0xD533a949740bb3306d119CC777fa900bA034cd52",
+    "type": "Gamefi",
+    "Vulnerability": ["weak-prng", "arbitrary-send-eth"],
+    "Termination Pattern": []
+  },
+  {
+    "address": "0x82967568A57625675b260Ebab1294038C9ACcC6e",
+    "type": "Gamefi",
+    "Vulnerability": ["unprotected-upgrade"],
+    "Termination Pattern": []
+  },
+  {
+    "address": "0x3845badAde8e6dFF049820680d1F14bD3903a5d0",
+    "type": "Gamefi",
+    "Vulnerability": ["array-by-reference"],
+    "Termination Pattern": ["proxy"]
+  },
+  {
+    "address": "0xf4dfae0cd1ab4b9316a3b31d8fe9d58b31251593",
+    "type": "Asset_Management",
+    "Vulnerability": ["name-reused"],
+    "Termination Pattern": []
+  },
+  {
+    "address": "0x35cf415f7d9a50237ae580fc0591960b5a5a3e6f",
+    "type": "Asset_Management",
+    "Vulnerability": ["shadowing-state"],
+    "Termination Pattern": ["proxy"]
+  },
+  {
+    "address": "0xc4befa30ae64ff9d31cc174043249da89b3c2be3",
+    "type": "Asset_Management",
+    "Vulnerability": ["arbitrary-send-erc20"],
+    "Termination Pattern": ["proxy"]
+  },
+  {
+    "address": "0x7c9921966a9822f218a483bd82d3186a5a6b3f3d",
+    "type": "Asset_Management",
+    "Vulnerability": ["uninitialized-state"],
+    "Termination Pattern": []
+  },
+  {
+    "address": "0x0c6e4cf619b1582c1f49a0510f11498cef1a37cf",
+    "type": "Asset_Management",
+    "Vulnerability": ["rtlo"],
+    "Termination Pattern": ["emergency stop"]
+  },
+  {
+    "address": "0x889b3eb67dd7b07c9a443b3cbe19cff25fbe1f5f",
+    "type": "Asset_Management",
+    "Vulnerability": ["multiple-constructors"],
+    "Termination Pattern": ["proxy"]
+  },
+  {
+    "address": "0xc854a902c6e1d9f861342318fc612041d63db15a",
+    "type": "Asset_Management",
+    "Vulnerability": ["protected-vars"],
+    "Termination Pattern": []
+  },
+  {
+    "address": "0xf9ecf0853ce83655734d49f249df52e2b86b4220",
+    "type": "Asset_Management",
+    "Vulnerability": ["encode-packed-collision"],
+    "Termination Pattern": []
+  },
+  {
+    "address": "0xa90394b8c41bc6d6aa4c51f7b6bbfccd7bfcd0b5",
+    "type": "Asset_Management",
+    "Vulnerability": ["arbitrary transferFrom"],
+    "Termination Pattern": []
+  },
+  {
+    "address": "0xec0fe59c20c5ce7ee6682cf5a2775df5c5cb6cba",
+    "type": "Asset_Management",
+    "Vulnerability": ["incorrect-shift"],
+    "Termination Pattern": ["proxy"]
+  },
+  {
+    "address": "0xd711c1a0fb2e1ff30646d6d48a8bd75387f4113a",
+    "type": "Payment",
+    "Vulnerability": ["suicidal"],
+    "Termination Pattern": []
+  },
+  {
+    "address": "0x10f6cf11fd6eabaaefdc60a9c69504f12e96f440",
+    "type": "Payment",
+    "Vulnerability": ["public-mappings-nested"],
+    "Termination Pattern": []
+  },
+  {
+    "address": "0x19ad6b8ba8db8c6feb8ec9ba36aa53452ecefe76",
+    "type": "Payment",
+    "Vulnerability": ["unchecked-transfer"],
+    "Termination Pattern": ["proxy"]
+  },
+  {
+    "address": "0x59ed3c5c1f760f7113c9d8d9ed746cf9242e377d",
+    "type": "Payment",
+    "Vulnerability": ["reentrancy-eth"],
+    "Termination Pattern": []
+  },
+  {
+    "address": "0xefd2789824f7325e487396914455ba4fd86b7fba",
+    "type": "Payment",
+    "Vulnerability": ["weak-prng"],
+    "Termination Pattern": []
+  },
+  {
+    "address": "0xc744d403cbd62ab735b3a9beb68d343df8fdf78c",
+    "type": "Payment",
+    "Vulnerability": ["arbitrary-send-eth"],
+    "Termination Pattern": []
+  },
+  {
+    "address": "0xdba6c36d29474235413ed4450f94069240caf4cb",
+    "type": "Payment",
+    "Vulnerability": ["unprotected-upgrade"],
+    "Termination Pattern": []
+  },
+  {
+    "address": "0x9b996931301f976fb1860fcd86ea92fbc784c667",
+    "type": "Payment",
+    "Vulnerability": ["array-by-reference"],
+    "Termination Pattern": ["proxy"]
+  },
+  {
+    "address": "0xb0c1cdd54549cfe9cf8b13af24b52b7285c4af3e",
+    "type": "Payment",
+    "Vulnerability": ["name-reused"],
+    "Termination Pattern": []
+  },
+  {
+    "address": "0xb7ab0225814a38bca4164ad1b8639bc2ca09cbf0",
+    "type": "Payment",
+    "Vulnerability": ["shadowing-state"],
+    "Termination Pattern": []
+  },
+  {
+    "address": "0xdbbe5e9b1daa91430cf0772fcebe53f6c6f137df",
+    "type": "Oracle",
+    "Vulnerability": ["rtlo"],
+    "Termination Pattern": []
+  },
+  {
+    "address": "0x2ec1a4fb4c79af44811207bd0cce80e0d4eb985e",
+    "type": "Oracle",
+    "Vulnerability": ["multiple-constructors"],
+    "Termination Pattern": []
+  },
+  {
+    "address": "0x3b728c6b16bbb68ace92142743ea52820be327f4",
+    "type": "Oracle",
+    "Vulnerability": ["protected-vars"],
+    "Termination Pattern": []
+  },
+  {
+    "address": "0xffeaae5fc6219b9352cd653a4595b6231579c99e",
+    "type": "Oracle",
+    "Vulnerability": ["encode-packed-collision"],
+    "Termination Pattern": []
+  },
+  {
+    "address": "0x6e70ccf080aa39c595bfb27008acc4acf1ab7d9a",
+    "type": "Oracle",
+    "Vulnerability": ["arbitrary transferFrom", "incorrect-shift"],
+    "Termination Pattern": ["emergency stop", "proxy"]
+  },
+  {
+    "address": "0x10f0cc8cb2c0aa328de9e96f9466d28d546d1561",
+    "type": "Oracle",
+    "Vulnerability": ["suicidal"],
+    "Termination Pattern": []
+  },
+  {
+    "address": "0x022abb391ddcc80a17cd0a3873ff88dd06aad735",
+    "type": "Oracle",
+    "Vulnerability": ["public-mappings-nested"],
+    "Termination Pattern": []
+  },
+  {
+    "address": "0xdee8e4328f368f260e9d106d16a74772691a25cd",
+    "type": "Oracle",
+    "Vulnerability": ["unchecked-transfer"],
+    "Termination Pattern": []
+  },
+  {
+    "address": "0xc430c78da6e4af49bd115f0329d154bb135f1363",
+    "type": "Oracle",
+    "Vulnerability": ["reentrancy-eth"],
+    "Termination Pattern": []
+  },
+  {
+    "address": "0xeb9da1cd04c613a44c7a2b0d718ed80408e9708b",
+    "type": "Oracle",
+    "Vulnerability": ["weak-prng"],
+    "Termination Pattern": []
+  },
+  {
+    "address": "0x6a8b59e71ce7be8d3beb9af1b9a8ddeba14ce1e1",
+    "type": "NFTFi",
+    "Vulnerability": ["arbitrary-send-eth"],
+    "Termination Pattern": ["emergency stop"]
+  },
+  {
+    "address": "0xd2d0b0eabb5f26660c6130e8d937533f2f752868",
+    "type": "NFTFi",
+    "Vulnerability": ["unprotected-upgrade"],
+    "Termination Pattern": []
+  },
+  {
+    "address": "0x92359910bb4dfd70f9814d03fecd9c5d31994f85",
+    "type": "NFTFi",
+    "Vulnerability": ["unprotected-upgrade", "array-by-reference"],
+    "Termination Pattern": []
+  },
+  {
+    "address": "0x6e65226cfa68e889705c25aa887e4c167ec167b0",
+    "type": "NFTFi",
+    "Vulnerability": [],
+    "Termination Pattern": ["proxy"]
+  },
+  {
+    "address": "0x64315bae992d748457114d365c393f632af1252e",
+    "type": "NFTFi",
+    "Vulnerability": ["shadowing-state"],
+    "Termination Pattern": []
+  },
+  {
+    "address": "0x29f1f7650400ea357d3376da4bade904119c28b8",
+    "type": "NFTFi",
+    "Vulnerability": ["rtlo"],
+    "Termination Pattern": ["proxy"]
+  },
+  {
+    "address": "0x144b4a4520354670659a992ed298f920554c9711",
+    "type": "NFTFi",
+    "Vulnerability": ["multiple-constructors"],
+    "Termination Pattern": ["proxy"]
+  },
+  {
+    "address": "0x7115a8ecc11336e594618ef85be0b920dfe205d3",
+    "type": "NFTFi",
+    "Vulnerability": ["protected-vars"],
+    "Termination Pattern": ["proxy"]
+  },
+  {
+    "address": "0x0e8d5ad992b37f145ed1985d4bffcbc3d5bd6be3",
+    "type": "NFTFi",
+    "Vulnerability": ["encode-packed-collision"],
+    "Termination Pattern": []
+  },
+  {
+    "address": "0x813a0dcbc3bde314a03aa3010925c8ed4b76f87e",
+    "type": "NFTFi",
+    "Vulnerability": ["arbitrary transferFrom", "incorrect-shift"],
+    "Termination Pattern": ["selfdestruct"]
+  }
+]
